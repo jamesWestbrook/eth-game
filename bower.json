@@ -1,0 +1,16 @@
+{
+    "name": "greasy",
+    "version": "0.0.0",
+    "authors": [
+    "matt westbrook <james.m.westbrook@gmail.com>"
+    ],
+    "description": "a clone of the game take it easy",
+    "license": "MIT",
+    "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+    ]
+}
