@@ -69,26 +69,51 @@ class GreasyGame {
     }
 
     drawRandomTile(tiles, d) {
+
         this.chooseRandomTile();
         var tile = this.activeTile.split('');
-        if(tile[2] === '8') { this._drawLine('#FFCCFF', d.edge1Center, d.edge4Center) }
-        if(tile[2] === '4') { this._drawLine('#FF3399', d.edge1Center, d.edge4Center) }
-        if(tile[2] === '3') { this._drawLine('#CC0000', d.edge1Center, d.edge4Center) }
-        if(tile[1] === '7') { this._drawLine('#990033', d.edge2Center, d.edge5Center) }
-        if(tile[1] === '6') { this._drawLine('#CCFF66', d.edge2Center, d.edge5Center) }
-        if(tile[1] === '2') { this._drawLine('#66FFFF', d.edge2Center, d.edge5Center) }
-        if(tile[0] === '9') { this._drawLine('#FFFF00', d.edge3Center, d.edge6Center) }
-        if(tile[0] === '5') { this._drawLine('#666699', d.edge3Center, d.edge6Center) }
-        if(tile[0] === '1') { this._drawLine('#00CC00', d.edge3Center, d.edge6Center) }
+        for(var axis in tile) {
+            console.log(tile[axis]);
+            switch (tile[axis]) {
+                case '8': this._drawLine('#6600CC', d.edge3Center, d.edge6Center, tile[axis]); break;
+                case '4': this._drawLine('#FF3399', d.edge3Center, d.edge6Center, tile[axis]); break;
+                case '3': this._drawLine('#CC0000', d.edge3Center, d.edge6Center, tile[axis]); break;
+                case '7': this._drawLine('#990033', d.edge2Center, d.edge5Center, tile[axis]); break;
+                case '6': this._drawLine('#33CC33', d.edge2Center, d.edge5Center, tile[axis]); break;
+                case '2': this._drawLine('#0099FF', d.edge2Center, d.edge5Center, tile[axis]); break;
+                case '9': this._drawLine('#FF9900', d.edge1Center, d.edge4Center, tile[axis]); break;
+                case '5': this._drawLine('#666699', d.edge1Center, d.edge4Center, tile[axis]); break;
+                case '1': this._drawLine('#CC3300', d.edge1Center, d.edge4Center, tile[axis]); break;
+                default: console.error('drawRandomTile default case shouldn\'t happen');
+            }
+        }
     }
 
-    _drawLine(color, point1, point2) {
+    _drawLine(color, point1, point2, axis) {
         this.svg.append('path')
             .attr('d',
             ' M ' + point1[0] + ' ' + point1[1] +
             ' L ' + point2[0] + ' ' + point2[1])
             .attr('stroke', color)
-            .attr('stroke-width', '5px');
+            .attr('stroke-width', '1.4em');
+
+        this.svg.append('text')
+            .attr('x', () => {
+                if( axis === '8' || axis === '4' || axis === '3') { return point1[0]-20; }
+                if( axis === '7' || axis === '6' || axis === '2') { return point1[0]-20; }
+                if( axis === '9' || axis === '5' || axis === '1') { return point1[0]-5; }
+                return x;
+            })
+            .attr('y', () => {
+                if( axis === '8' || axis === '4' || axis === '3') { return point1[1]; }
+                if( axis === '7' || axis === '6' || axis === '2') { return point1[1]+15; }
+                if( axis === '9' || axis === '5' || axis === '1') { return point1[1]+20; }
+                return x;
+            })
+            .text(axis)
+            .style('fill', 'white')
+            .attr('font-size', '1.3em')
+            .attr("font-family", "sans-serif")
     }
 
     _setCenter(hex, hexCount, currentCenter) {

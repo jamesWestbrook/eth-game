@@ -6,7 +6,7 @@ var height = $(window).height() - $(window).height()*0.05;
 var options = {
     container       : 'chart',
     id              : 'gameboard',
-    hexColor        : '#210B61',
+    hexColor        : '#484848',
     outlineColor    : '#fff',
     outlineWeight   : '1px',
     width           : width,
