@@ -5,17 +5,23 @@ class GreasyGame {
     constructor(options) {
         this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
         this.activeTile = undefined;
-        this.svg = d3.select('#' + options.container).append('svg')
-            .attr('width', options.width)
-            .attr('height', options.height)
-            .attr('id', options.id);
 
         this.columns = options.columns;
         this.rows = options.rows;
         this.width = options.width;
-        this.height = options.height;
-        this.hexRadius = (this.width/this.rows)/2;
+        this.hexRadius = (this.width/(this.columns - 1))/2;
         this.hexHeight = (this.hexRadius*Math.sqrt(3))/2;
+        this.height = this.hexHeight*2*this.rows + this.hexHeight;
+
+        this.svgHexBoard = d3.select('#board').append('svg')
+            .attr('width', this.width)
+            .attr('height', this.height)
+            //.style('border', '1px solid black');
+
+        this.svgGameHud = d3.select('#hud').append('svg')
+            .attr('width', this.hexRadius*4)
+            .attr('height', this.height)
+            //.style('border', '1px solid black');
 
         //build out all the hex coordinates
         this.hexes = [];
@@ -55,6 +61,8 @@ class GreasyGame {
         //draw the map
         this._buildGame(options);
 
+        this._buildHud(options);
+
     }
 
     hideHexes(array) {
@@ -67,46 +75,44 @@ class GreasyGame {
         this.activeTile = this.tiles[Math.floor((Math.random() * this.tiles.length))];
     }
 
-    drawRandomTile(tiles, d) {
+    drawRandomTile(svg, tiles, d) {
 
         this.chooseRandomTile();
         var tile = this.activeTile.split('');
         for(var axis in tile) {
             switch (tile[axis]) {
-                case '8': this._drawLine('#6600CC', d.edge3Center, d.edge6Center, tile[axis]); break;
-                case '4': this._drawLine('#FF3399', d.edge3Center, d.edge6Center, tile[axis]); break;
-                case '3': this._drawLine('#CC0000', d.edge3Center, d.edge6Center, tile[axis]); break;
-                case '7': this._drawLine('#990033', d.edge2Center, d.edge5Center, tile[axis]); break;
-                case '6': this._drawLine('#33CC33', d.edge2Center, d.edge5Center, tile[axis]); break;
-                case '2': this._drawLine('#0099FF', d.edge2Center, d.edge5Center, tile[axis]); break;
-                case '9': this._drawLine('#FF9900', d.edge1Center, d.edge4Center, tile[axis]); break;
-                case '5': this._drawLine('#666699', d.edge1Center, d.edge4Center, tile[axis]); break;
-                case '1': this._drawLine('#996600', d.edge1Center, d.edge4Center, tile[axis]); break;
+                case '8': this._drawLine('#6600CC', d.edge3Center, d.edge6Center, tile[axis], svg); break;
+                case '4': this._drawLine('#FF3399', d.edge3Center, d.edge6Center, tile[axis], svg); break;
+                case '3': this._drawLine('#CC0000', d.edge3Center, d.edge6Center, tile[axis], svg); break;
+                case '7': this._drawLine('#990033', d.edge2Center, d.edge5Center, tile[axis], svg); break;
+                case '6': this._drawLine('#33CC33', d.edge2Center, d.edge5Center, tile[axis], svg); break;
+                case '2': this._drawLine('#0099FF', d.edge2Center, d.edge5Center, tile[axis], svg); break;
+                case '9': this._drawLine('#FF9900', d.edge1Center, d.edge4Center, tile[axis], svg); break;
+                case '5': this._drawLine('#666699', d.edge1Center, d.edge4Center, tile[axis], svg); break;
+                case '1': this._drawLine('#996600', d.edge1Center, d.edge4Center, tile[axis], svg); break;
                 default: console.error('drawRandomTile default case shouldn\'t happen');
             }
         }
     }
 
-    _drawLine(color, point1, point2, axis) {
-        this.svg.append('path')
+    _drawLine(color, point1, point2, axis, svg) {
+        svg.append('path')
             .attr('d',
             ' M ' + point1[0] + ' ' + point1[1] +
             ' L ' + point2[0] + ' ' + point2[1])
             .attr('stroke', color)
             .attr('stroke-width', '1.4em');
 
-        this.svg.append('text')
+        svg.append('text')
             .attr('x', () => {
                 if( axis === '8' || axis === '4' || axis === '3') { return point1[0]-20; }
                 if( axis === '7' || axis === '6' || axis === '2') { return point1[0]-20; }
                 if( axis === '9' || axis === '5' || axis === '1') { return point1[0]-5; }
-                return x;
             })
             .attr('y', () => {
                 if( axis === '8' || axis === '4' || axis === '3') { return point1[1]; }
                 if( axis === '7' || axis === '6' || axis === '2') { return point1[1]+15; }
                 if( axis === '9' || axis === '5' || axis === '1') { return point1[1]+20; }
-                return x;
             })
             .text(axis)
             .style('fill', 'white')
@@ -172,7 +178,7 @@ class GreasyGame {
     _buildGame() {
 
         //draws the hexes
-        this.svg.append('g')
+        this.svgHexBoard.append('g')
             .selectAll('.hexagon')
             .data(this.hexes)
             .enter().append('path')
@@ -193,15 +199,44 @@ class GreasyGame {
             })
 
             .style('fill', options.hexColor)
-            .style('visibility', (d) => {
-                return d.hidden ? 'hidden' : 'visible';
-
-            })
+            .style('visibility', (d) => { return d.hidden ? 'hidden' : 'visible'; })
             .attr('stroke', options.outlineColor)
             .attr('stroke-width', options.outlineWeight)
-            .on('click', (d) => {
-                this.drawRandomTile(this.tiles, d)
+            .on('click', (d) => { this.drawRandomTile(this.svgHexBoard, this.tiles, d) })
+            .on('mouseover', () => {
             });
+    }
+
+    _buildHud(options) {
+
+        var hex = { center : [this.hexRadius*2, this.hexHeight*2] }
+        this._setCorners(hex);
+        this._setEdgeCenters(hex);
+
+
+        this.svgGameHud.append('path')
+        .attr('class', 'hexagon')
+        .attr('d', () => {
+
+            //forced to declare this before returning for some reason...?
+            var path =
+            ' M ' + hex.corner1[0] + ' ' + hex.corner1[1] +
+            ' L ' + hex.corner2[0] + ' ' + hex.corner2[1] +
+            ' L ' + hex.corner3[0] + ' ' + hex.corner3[1] +
+            ' L ' + hex.corner4[0] + ' ' + hex.corner4[1] +
+            ' L ' + hex.corner5[0] + ' ' + hex.corner5[1] +
+            ' L ' + hex.corner6[0] + ' ' + hex.corner6[1] +
+            ' Z';
+
+            return path;
+        })
+
+        .style('fill', '#fff')
+        .attr('stroke', options.hexColor)
+        .attr('stroke-width', '1px')
+        .on('click', () => { this.drawRandomTile(this.svgGameHud,this.tiles, hex) })
+        .on('mouseover', () => {
+        });
     }
 
 }

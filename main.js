@@ -1,11 +1,9 @@
 'use strict';
 
-var width = $(window).width() - $(window).width()*0.05;
-var height = $(window).height() - $(window).height()*0.05;
+var width = Math.min(500, $(window).width() - $(window).width()*0.05);
+var height = Math.min(500, $(window).height() - $(window).height()*0.05);
 
 var options = {
-    container       : 'chart',
-    id              : 'gameboard',
     hexColor        : '#484848',
     outlineColor    : '#fff',
     outlineWeight   : '1px',
