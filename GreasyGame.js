@@ -63,9 +63,8 @@ class GreasyGame {
         }
     }
 
-    //TODO occassionaly this is setting activeTile to undefined - need to test
     chooseRandomTile() {
-        this.activeTile = this.tiles[Math.floor((Math.random() * this.tiles.length) + 1)];
+        this.activeTile = this.tiles[Math.floor((Math.random() * this.tiles.length))];
     }
 
     drawRandomTile(tiles, d) {
@@ -73,7 +72,6 @@ class GreasyGame {
         this.chooseRandomTile();
         var tile = this.activeTile.split('');
         for(var axis in tile) {
-            console.log(tile[axis]);
             switch (tile[axis]) {
                 case '8': this._drawLine('#6600CC', d.edge3Center, d.edge6Center, tile[axis]); break;
                 case '4': this._drawLine('#FF3399', d.edge3Center, d.edge6Center, tile[axis]); break;
@@ -83,7 +81,7 @@ class GreasyGame {
                 case '2': this._drawLine('#0099FF', d.edge2Center, d.edge5Center, tile[axis]); break;
                 case '9': this._drawLine('#FF9900', d.edge1Center, d.edge4Center, tile[axis]); break;
                 case '5': this._drawLine('#666699', d.edge1Center, d.edge4Center, tile[axis]); break;
-                case '1': this._drawLine('#CC3300', d.edge1Center, d.edge4Center, tile[axis]); break;
+                case '1': this._drawLine('#996600', d.edge1Center, d.edge4Center, tile[axis]); break;
                 default: console.error('drawRandomTile default case shouldn\'t happen');
             }
         }
