@@ -2,54 +2,14 @@
 
 class GreasyGame {
 
-    play(options) {
-        console.log(this.activeTile);
-
-        // this.chooseRandomTile();
-        //
-        //
-        // var count = 0;
-        // this.hexes.map((hex) => {
-        //     if( count % 7 === 0) {
-        //         this.chooseRandomTile();
-        //     }
-        //
-        //
-        //     if(hex.hidden !== true ) {
-        //         this.drawLines(hex, this.svgHexBoard);
-        //     }
-        //
-        //     count++;
-        // });
-        //
-        // this._buildHud(options);
-    }
-
-    constructor(options) {
-
-        this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
-        this.activeTile = undefined;
-        this.activeTileId = [-1,-1];
-
-        this.gamePiecies = {};
-        this.svgActiveTile = undefined;
-
-        this.columns = options.columns;
-        this.rows = options.rows;
-        this.width = options.width;
-        this.hexRadius = (this.width/(this.columns - 1))/2;
-        this.hexHeight = (this.hexRadius*Math.sqrt(3))/2;
-        this.height = this.hexHeight*2*this.rows + this.hexHeight;
-
-        this.svgHexBoard = d3.select('#board').append('svg')
+    play() {
+        this.svg['board'] = d3.select('#board').append('svg')
             .attr('width', this.width)
-            .attr('height', this.height)
-            //.style('border', '1px solid black');
+            .attr('height', this.height);
 
-        this.svgGameHud = d3.select('#displaytile').append('svg')
+        this.svg['hud'] = d3.select('#hud').append('svg')
             .attr('width', this.hexRadius*4)
             .attr('height', this.height)
-            //.style('border', '1px solid black');
 
         //build out all the hex coordinates
         this.hexes = [];
@@ -92,6 +52,23 @@ class GreasyGame {
 
         //draw the hud
         this._buildHud(options);
+    }
+
+    constructor(options) {
+
+        //object to keep track of all of the svg pieces for ease of access
+        this.svg = {};
+
+        this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
+        this.activeTile = undefined;
+        this.activeTileId = [-1,-1];
+
+        this.columns = options.columns;
+        this.rows = options.rows;
+        this.width = options.width;
+        this.hexRadius = (this.width/(this.columns - 1))/2;
+        this.hexHeight = (this.hexRadius*Math.sqrt(3))/2;
+        this.height = this.hexHeight*2*this.rows + this.hexHeight;
 
     }
 
@@ -105,13 +82,17 @@ class GreasyGame {
         this.activeTile = this.tiles[Math.floor((Math.random() * this.tiles.length))];
     }
 
-    drawLines(hex, svg) {
+    drawLines(hex) {
 
+        var svg;
+
+        //if the hud hex draw on hud
         if(hex.id[0] === -1) {
-            this.svgActivePiece = svg.append('g').attr('class', this.lineClass(hex));
-            svg = this.svgActivePiece;
+            this.svg.hud.hudtile['lines'] = this.svg.hud.append('g').attr('class', 'lines');
+            svg = this.svg.hud.hudtile.lines;
         } else {
-            svg.append('g').attr('class', this.lineClass(hex));
+            this.svg.hexes[this.idToString(hex)]['lines'] = this.svg.board.append('g').attr('class', 'lines');
+            svg = this.svg.hexes[this.idToString(hex)].lines;
         }
 
 
@@ -130,11 +111,9 @@ class GreasyGame {
                 default: console.error('drawLines default case shouldn\'t happen');
             }
         }
-
-        d3.select('#' + this.idToString(hex)).on('click', () => {});
-
-        //TODO give ID to the lines that you draw so that you can remove them all at once from the
     }
+
+
 
     _drawLine(color, point1, point2, axis, svg, hex) {
 
@@ -221,7 +200,8 @@ class GreasyGame {
     _buildGame() {
 
         //draws the hexes
-        this.svgHexBoard
+        this.svg.board
+            .append('g')
             .selectAll('.hexagon')
             .data(this.hexes)
             .enter().append('path')
@@ -247,28 +227,43 @@ class GreasyGame {
             .attr('stroke', options.outlineColor)
             .attr('stroke-width', options.outlineWeight)
             .on('click', (hex) => {
+
                 if(this.activeTile !== undefined) {
-                    this.drawLines(hex, this.svgHexBoard);
-                    this.svgActivePiece.remove();
+
+                    this.drawLines(hex);
+                    this.svg.hud.hudtile.lines.remove();
                     this.activeTile = undefined;
-                    this.svgActiveTile.on('click', (hex)=> {
+
+                    this.svg.hud.hudtile.on('click', (hex)=> {
                         this.chooseRandomTile();
-                        this.drawLines(this.activeHex, this.svgGameHud);
+                        this.drawLines(this.activeHex);
                     });
                 }
             });
+
+            //saves ref of the hex's svg in the svg map
+            var hexes = d3.selectAll('.hexagon')[0];
+
+            //create obj to group hexes
+            this.svg['hexes'] = {};
+
+            for(var i=0; i<hexes.length; i++) {
+                this.svg.hexes[hexes[i].id] = hexes[i];
+            }
     }
 
     //element to the right/? of the game map
     _buildHud(options) {
 
         var hex = { center : [this.hexRadius*2, this.hexHeight*2] }
-        hex.id=this.activeTileId;
+        hex.id = this.activeTileId;
 
         this._setCorners(hex);
         this._setEdgeCenters(hex);
         this.activeHex = hex;
-        this.svgActiveTile = this.svgGameHud.append('path')
+
+        //save ref to hud tile
+        this.svg.hud['hudtile'] = this.svg.hud.append('path')
         .attr('class', 'hexagon')
         .attr('id', this.idToString(hex))
         .attr('d', () => {
@@ -290,10 +285,10 @@ class GreasyGame {
         .attr('stroke-width', '1px')
         .on('click', () => {
 
-            this.chooseRandomTile();
-
-            //removes click event
-            this.drawLines(hex, this.svgGameHud);
+            if(this.activeTile === undefined) {
+                this.chooseRandomTile();
+                this.drawLines(hex);
+            }
 
         });
 

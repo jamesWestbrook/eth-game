@@ -15,5 +15,4 @@ var options = {
 }
 
 var game = new GreasyGame(options);
-
-//game.play(options);
+game.play();

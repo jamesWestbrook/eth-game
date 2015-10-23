@@ -4,28 +4,25 @@ let path = require('path');
 //should style assertions
 chai.should();
 
-//import HexMap
-let HexMap = require(path.join(__dirname, '..', 'GreasyMap'));
+//import game
+let GreasyGame = require(path.join(__dirname, '..', 'GreasyGame'));
 
-describe('GreasyMap', () => {
-	let map;
+describe('GreasyGame', () => {
+	let game;
 
 	beforeEach( () => {
-		map = new GreasyMap(5,5,100,100);
-	});
+		var options = {
+		    hexColor        : '#444',
+		    outlineColor    : '#fff',
+		    outlineWeight   : '1px',
+		    width           : 500,
+		    height          : 500,
+		    hiddenHexes     : [0,4,9,19,20,24],
+		    columns         : 5,
+		    rows            : 5
+		}
 
-	// it('test a modified map size', () => {
-	// 	var hiddenHexes = [0,4,9,19,20,24];
-	// 	hexMap.hideHexes(hiddenHexes);
-	// 	hexMap.countHexes().should.equal(25 - hiddenHexes.length);
-	// });
-
-	it('test hex radius caluclation', () => {
-		map.hexRadius.should.equal(10);
-	});
-
-	it('test hex height calculation', () => {
-		map.hexHeight.should.equal(8.660254037844386);
+		game = new GreasyGame(options);
 	});
 
 	it('test hex centers were all built', () => {
