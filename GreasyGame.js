@@ -5,14 +5,15 @@ class GreasyGame {
     play() {
         this.svg['board'] = d3.select('#board').append('svg')
             .attr('width', this.width)
-            .attr('height', this.height);
+            .attr('height', this.height)
+            .attr('viewBox', '' + -1*this.hexRadius + ' ' + this.hexHeight + ' ' + this.width + ' ' + this.height);
 
         this.svg['hud'] = d3.select('#hud').append('svg')
             .attr('width', this.hexRadius*4)
-            .attr('height', this.height)
+            .attr('height', this.height);
 
         //build out all the hex coordinates
-        this.hexes = [];
+        this.hexes = {};
         var currentCenter = [0,0];
 
         for(var i=0; i<this.columns; i++) {
@@ -21,12 +22,18 @@ class GreasyGame {
 
                 var hex = {};
 
-                hex['id'] = [j,i];
+                hex.id = 'x' + i + 'y' + j;
+                hex.cc = {
+                    x: i,
+                    z: j - (i - (i&1)) / 2,
+                    y: -i - (j - (i - (i&1)) / 2)
+                };
+
 
                 //set hidden to false
-                hex['hidden'] = false;
+                hex.hidden = false;
 
-                //set the cetners
+                //set the centers
                 this._setCenter(hex, this.hexes.length, currentCenter);
 
                 //set the corners
@@ -38,7 +45,7 @@ class GreasyGame {
                 currentCenter = Object.assign({}, hex.center);
 
                 //store the hex
-                this.hexes.push(hex);
+                this.hexes[hex.id] = hex;
             }
 
             this._adjustCenter(i, currentCenter);
@@ -61,7 +68,7 @@ class GreasyGame {
 
         this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
         this.activeTile = undefined;
-        this.activeTileId = [-1,-1];
+        this.activeTileId = 'hudtile';
 
         this.columns = options.columns;
         this.rows = options.rows;
@@ -87,12 +94,12 @@ class GreasyGame {
         var svg;
 
         //if the hud hex draw on hud
-        if(hex.id[0] === -1) {
+        if(hex.id === 'hudtile') {
             this.svg.hud.hudtile['lines'] = this.svg.hud.append('g').attr('class', 'lines');
             svg = this.svg.hud.hudtile.lines;
         } else {
-            this.svg.hexes[this.idToString(hex)]['lines'] = this.svg.board.append('g').attr('class', 'lines');
-            svg = this.svg.hexes[this.idToString(hex)].lines;
+            this.svg.hexes[hex.id]['lines'] = this.svg.board.append('g').attr('class', 'lines');
+            svg = this.svg.hexes[hex.id].lines;
         }
 
 
@@ -179,11 +186,10 @@ class GreasyGame {
     }
 
     _midpoint(coordinate1, coordinate2) {
-        var midpoint = [
+        return [
             (coordinate1[0] + coordinate2[0])/2,
             (coordinate1[1] + coordinate2[1])/2
         ];
-        return midpoint;
     }
 
     _adjustCenter(i, currentCenter) {
@@ -203,10 +209,10 @@ class GreasyGame {
         this.svg.board
             .append('g')
             .selectAll('.hexagon')
-            .data(this.hexes)
+            .data(this._objToArray(this.hexes))
             .enter().append('path')
             .attr('class', 'hexagon')
-            .attr('id', (hex) => { return this.idToString(hex) })
+            .attr('id', (hex) => { return hex.id })
             .attr('d', (hex) => {
 
                 //forced to declare this before returning for some reason...?
@@ -227,18 +233,7 @@ class GreasyGame {
             .attr('stroke', options.outlineColor)
             .attr('stroke-width', options.outlineWeight)
             .on('click', (hex) => {
-
-                if(this.activeTile !== undefined) {
-
-                    this.drawLines(hex);
-                    this.svg.hud.hudtile.lines.remove();
-                    this.activeTile = undefined;
-
-                    this.svg.hud.hudtile.on('click', (hex)=> {
-                        this.chooseRandomTile();
-                        this.drawLines(this.activeHex);
-                    });
-                }
+                this.clickHex(hex);
             });
 
             //saves ref of the hex's svg in the svg map
@@ -252,10 +247,10 @@ class GreasyGame {
             }
     }
 
-    //element to the right/? of the game map
+    //element to the right of the game map
     _buildHud(options) {
 
-        var hex = { center : [this.hexRadius*2, this.hexHeight*2] }
+        var hex = { center : [this.hexRadius*2, this.hexHeight*2] };
         hex.id = this.activeTileId;
 
         this._setCorners(hex);
@@ -263,9 +258,9 @@ class GreasyGame {
         this.activeHex = hex;
 
         //save ref to hud tile
-        this.svg.hud['hudtile'] = this.svg.hud.append('path')
+        this.svg.hud.hudtile = this.svg.hud.append('path')
         .attr('class', 'hexagon')
-        .attr('id', this.idToString(hex))
+        .attr('id', 'hudtile')
         .attr('d', () => {
 
             var path =
@@ -294,12 +289,22 @@ class GreasyGame {
 
     }
 
-    idToString(hex) {
-        return 'x' + hex.id[0] + 'y' + hex.id[1];
+    _objToArray(obj) {
+        return Object.keys(obj).map((key) => {return obj[key]})
     }
 
-    lineClass(hex) {
-        return 'lines.' + this.idToString(hex);
+    clickHex(hex) {
+
+        if(this.activeTile !== undefined) {
+
+            this.drawLines(hex);
+            this.svg.hud.hudtile.lines.remove();
+            this.activeTile = undefined;
+            this.svg.hud.hudtile.on('click', (hex)=> {
+                this.chooseRandomTile();
+                this.drawLines(this.activeHex);
+            });
+        }
     }
 
 }

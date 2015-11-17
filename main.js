@@ -9,10 +9,10 @@ var options = {
     outlineWeight   : '1px',
     width           : width,
     height          : height,
-    hiddenHexes     : [0,4,9,19,20,24],
+    hiddenHexes     : ['x0y0', 'x0y4', 'x1y4', 'x3y4', 'x4y0', 'x4y4'],
     columns         : 5,
     rows            : 5
-}
+};
 
 var game = new GreasyGame(options);
 game.play();
