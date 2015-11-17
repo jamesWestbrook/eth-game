@@ -71,7 +71,7 @@ class GreasyGame {
 
         this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
         this.activeTile = undefined;
-        this.activeTileId = 'hudtile';
+        this.hudtileId = 'hudtile';
         this.hexGroups = { Xs : {}, Ys : {}, Zs : {} };
 
         this.columns = options.columns;
@@ -97,21 +97,13 @@ class GreasyGame {
             if(!hex.hidden) {
 
                 if(hex.cc !== undefined) {
-                    this._addToOrCreateArray(this.hexGroups.Xs, hex.cc.x, hex.id);
-                    this._addToOrCreateArray(this.hexGroups.Ys, hex.cc.y, hex.id);
-                    this._addToOrCreateArray(this.hexGroups.Zs, hex.cc.z, hex.id);
+                    this._addToOrCreateArray(this.hexGroups.Xs, hex.cc.x, hex);
+                    this._addToOrCreateArray(this.hexGroups.Ys, hex.cc.y, hex);
+                    this._addToOrCreateArray(this.hexGroups.Zs, hex.cc.z, hex);
                 } else {
                     console.error('hex missing cubic coordinates - cannot group: ', hex);
                 }
             }
-        }
-    }
-
-    _addToOrCreateArray(objOfArrays, key, value) {
-        if(objOfArrays[key] !== undefined) {
-            objOfArrays[key].push(value);
-        } else {
-            objOfArrays[key] = [value];
         }
     }
 
@@ -124,7 +116,7 @@ class GreasyGame {
         var svg;
 
         //if the hud hex draw on hud
-        if(hex.id === 'hudtile') {
+        if(hex.id === this.hudtileId) {
             this.svg.hud.hudtile['lines'] = this.svg.hud.append('g').attr('class', 'lines');
             svg = this.svg.hud.hudtile.lines;
         } else {
@@ -135,6 +127,12 @@ class GreasyGame {
 
         var tile = this.activeTile.split('');
         for(var axis in tile) {
+
+            if(hex.id !== this.hudtileId) {
+                this._scoreLine(hex, tile[axis]);
+            }
+
+
             switch (tile[axis]) {
                 case '8': this._drawLine('#6600CC', hex.edge3Center, hex.edge6Center, tile[axis], svg, hex); break;
                 case '4': this._drawLine('#FF3399', hex.edge3Center, hex.edge6Center, tile[axis], svg, hex); break;
@@ -150,6 +148,30 @@ class GreasyGame {
         }
     }
 
+    _scoreLine(hex, line) {
+        if( line === '8' || line === '4' || line === '3') {
+            if(hex.zScore === undefined) {
+                hex.zScore = parseInt(line);
+            } else {
+                console.error('zScore being overridden!');
+            }
+        }
+        if( line === '7' || line === '6' || line === '2') {
+            if(hex.yScore === undefined) {
+                hex.yScore = parseInt(line);
+            } else {
+                console.error('yScore being overridden!');
+            }
+        }
+        if( line === '9' || line === '5' || line === '1') {
+            if(hex.xScore === undefined) {
+                hex.xScore = parseInt(line);
+            } else {
+                console.error('xScore being overridden!');
+            }
+        }
+    }
+
 
 
     _drawLine(color, point1, point2, axis, svg, hex) {
@@ -161,7 +183,6 @@ class GreasyGame {
             .attr('stroke', color)
             .attr('stroke-width', '1.4em');
 
-        //catch
         svg.append('text')
             .attr('x', () => {
                 if( axis === '8' || axis === '4' || axis === '3') { return point1[0]-20; }
@@ -281,7 +302,7 @@ class GreasyGame {
     _buildHud(options) {
 
         var hex = { center : [this.hexRadius*2, this.hexHeight*2] };
-        hex.id = this.activeTileId;
+        hex.id = this.hudtileId;
 
         this._setCorners(hex);
         this._setEdgeCenters(hex);
@@ -334,6 +355,14 @@ class GreasyGame {
                 this.chooseRandomTile();
                 this.drawLines(this.activeHex);
             });
+        }
+    }
+
+    _addToOrCreateArray(objOfArrays, key, obj) {
+        if(objOfArrays[key] !== undefined) {
+            objOfArrays[key].push(obj);
+        } else {
+            objOfArrays[key] = [obj];
         }
     }
 
