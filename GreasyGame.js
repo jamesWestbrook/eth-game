@@ -59,6 +59,9 @@ class GreasyGame {
 
         //draw the hud
         this._buildHud(options);
+
+        this.groupHexesByCubicCoords(this.hexes);
+        //console.log(this.hexGroups);
     }
 
     constructor(options) {
@@ -69,6 +72,7 @@ class GreasyGame {
         this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
         this.activeTile = undefined;
         this.activeTileId = 'hudtile';
+        this.hexGroups = { Xs : {}, Ys : {}, Zs : {} };
 
         this.columns = options.columns;
         this.rows = options.rows;
@@ -82,6 +86,32 @@ class GreasyGame {
     hideHexes(array) {
         for(var i = 0; i < array.length; ++i) {
             this.hexes[array[i]].hidden = true;
+        }
+    }
+
+    groupHexesByCubicCoords(hexes) {
+        for(var hexKey in hexes) {
+
+            var hex = hexes[hexKey];
+
+            if(!hex.hidden) {
+
+                if(hex.cc !== undefined) {
+                    this._addToOrCreateArray(this.hexGroups.Xs, hex.cc.x, hex.id);
+                    this._addToOrCreateArray(this.hexGroups.Ys, hex.cc.y, hex.id);
+                    this._addToOrCreateArray(this.hexGroups.Zs, hex.cc.z, hex.id);
+                } else {
+                    console.error('hex missing cubic coordinates - cannot group: ', hex);
+                }
+            }
+        }
+    }
+
+    _addToOrCreateArray(objOfArrays, key, value) {
+        if(objOfArrays[key] !== undefined) {
+            objOfArrays[key].push(value);
+        } else {
+            objOfArrays[key] = [value];
         }
     }
 
