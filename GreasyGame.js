@@ -81,6 +81,7 @@ class GreasyGame {
         this.hexHeight = (this.hexRadius*Math.sqrt(3))/2;
         this.height = this.hexHeight*2*this.rows + this.hexHeight;
 
+        this.score = 0;
     }
 
     hideHexes(array) {
@@ -97,9 +98,9 @@ class GreasyGame {
             if(!hex.hidden) {
 
                 if(hex.cc !== undefined) {
-                    this._addToOrCreateArray(this.hexGroups.Xs, hex.cc.x, hex);
-                    this._addToOrCreateArray(this.hexGroups.Ys, hex.cc.y, hex);
-                    this._addToOrCreateArray(this.hexGroups.Zs, hex.cc.z, hex);
+                    this.addToHexGroup(this.hexGroups.Xs, hex.cc.x, hex);
+                    this.addToHexGroup(this.hexGroups.Ys, hex.cc.y, hex);
+                    this.addToHexGroup(this.hexGroups.Zs, hex.cc.z, hex);
                 } else {
                     console.error('hex missing cubic coordinates - cannot group: ', hex);
                 }
@@ -356,13 +357,58 @@ class GreasyGame {
                 this.drawLines(this.activeHex);
             });
         }
+
     }
 
-    _addToOrCreateArray(objOfArrays, key, obj) {
-        if(objOfArrays[key] !== undefined) {
-            objOfArrays[key].push(obj);
+    getScore() {
+        this._scoreAxis(this.hexGroups.Xs, 'xScore');
+        this._scoreAxis(this.hexGroups.Ys, 'yScore');
+        this._scoreAxis(this.hexGroups.Zs, 'zScore');
+    }
+
+    _scoreAxis(axisGroup, scoreKey) {
+
+        //iterates over each unique X axis
+        for(var axisKey in axisGroup) {
+
+            var axis = axisGroup[axisKey];
+
+            //holds the first score encountered so we can make sure they all match
+            var firstScore = undefined;
+            var allMatch = true;
+
+            for(var hexKey in axis) {
+
+                var hex = axis[hexKey];
+
+                //if this is the first score
+                if(firstScore === undefined) {
+                    firstScore = hex[scoreKey];
+                }
+
+                //else see if it matches
+                else {
+                    if(firstScore !== hex[scoreKey]) {
+                        allMatch = false;
+                        break;
+                    }
+                }
+            }
+
+            if(allMatch) {
+                for(var hexKey in axis) {
+                    var hex = axis[hexKey];
+                    this.score = this.score + hex[scoreKey];
+                }
+            }
+        }
+    }
+
+    addToHexGroup(hexGroup, cubicIndex, hex) {
+        if(hexGroup[cubicIndex] !== undefined) {
+            hexGroup[cubicIndex].push(hex);
         } else {
-            objOfArrays[key] = [obj];
+            hexGroup[cubicIndex] = [hex];
         }
     }
 
