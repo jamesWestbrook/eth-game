@@ -342,7 +342,7 @@ class GreasyGame {
     }
 
     _objToArray(obj) {
-        return Object.keys(obj).map((key) => {return obj[key]})
+        return Object.keys(obj).map((key) => {return obj[key]});
     }
 
     clickHex(hex) {
@@ -360,15 +360,15 @@ class GreasyGame {
 
     }
 
-    getScore() {
-        this._scoreAxis(this.hexGroups.Xs, 'xScore');
-        this._scoreAxis(this.hexGroups.Ys, 'yScore');
-        this._scoreAxis(this.hexGroups.Zs, 'zScore');
+    calculateScore() {
+        this._scoreAxes(this.hexGroups.Xs, 'xScore');
+        this._scoreAxes(this.hexGroups.Ys, 'yScore');
+        this._scoreAxes(this.hexGroups.Zs, 'zScore');
     }
 
-    _scoreAxis(axisGroup, scoreKey) {
+    _scoreAxes(axisGroup, scoreKey) {
 
-        //iterates over each unique X axis
+        //iterates over each unique axis
         for(var axisKey in axisGroup) {
 
             var axis = axisGroup[axisKey];
@@ -376,29 +376,45 @@ class GreasyGame {
             //holds the first score encountered so we can make sure they all match
             var firstScore = undefined;
             var allMatch = true;
+            var undefinedFound = false;
 
-            for(var hexKey in axis) {
+            if(!axis.allFilled) {
 
-                var hex = axis[hexKey];
+                var i = 0;
+                while(i < axis.hexes.length) {
 
-                //if this is the first score
-                if(firstScore === undefined) {
-                    firstScore = hex[scoreKey];
-                }
+                    //get the hex
+                    var hex = axis.hexes[i];
 
-                //else see if it matches
-                else {
-                    if(firstScore !== hex[scoreKey]) {
-                        allMatch = false;
+                    //if any score is undefined there is no point in continuing to count
+                    if(hex[scoreKey] === undefined) {
+                        undefinedFound = true;
                         break;
                     }
-                }
-            }
 
-            if(allMatch) {
-                for(var hexKey in axis) {
-                    var hex = axis[hexKey];
-                    this.score = this.score + hex[scoreKey];
+                    //if this is the first score - record for comparison to following scores
+                    if(i === 0) {
+                        firstScore = hex[scoreKey];
+                    } else {
+                        if(firstScore !== hex[scoreKey]) {
+                            allMatch = false;
+                        }
+                    }
+
+                    i++; //iterate i
+                }
+
+                //see if all of our hexes have had a game tiled played on them
+                if(!undefinedFound) {
+                    axis.allFilled = true;
+                }
+
+                //if all the hexes match score the points and we didn't break early add up the score
+                if(allMatch && i === axis.hexes.length) {
+                    for(var hexKey in axis.hexes) {
+                        var hex = axis.hexes[hexKey];
+                        this.score = this.score + hex[scoreKey];
+                    }
                 }
             }
         }
@@ -406,9 +422,9 @@ class GreasyGame {
 
     addToHexGroup(hexGroup, cubicIndex, hex) {
         if(hexGroup[cubicIndex] !== undefined) {
-            hexGroup[cubicIndex].push(hex);
+            hexGroup[cubicIndex].hexes.push(hex);
         } else {
-            hexGroup[cubicIndex] = [hex];
+            hexGroup[cubicIndex] = { hexes: [hex], allFilled: false };
         }
     }
 
