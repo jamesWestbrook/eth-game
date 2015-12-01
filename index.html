@@ -15,16 +15,71 @@
                 margin: 0 auto;
             }
 
-            #board {
+            #board {}
+
+            #hud {
+                display:flex;
+                flex-flow: column;
             }
 
+            #scoreBoard {
+                color: #444;
+                font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+            }
+
+            #scoreLabel {
+                margin-bottom: 5px;
+                padding-bottom: 5px;
+                border-bottom: 1px solid black;
+                text-align: center;
+            }
+
+            #totalLabel {
+                margin-top: 5px;
+                padding-top: 10px;
+                border-top: 1px solid black;
+            }
+
+            #totalLabel > div {
+                display: flex;
+                justify-content: space-between;
+                padding-right: 10px;
+            }
+
+            #points > div {
+                margin: 2px 0 2px 0;
+                padding: 4px 10px 4px 10px;
+                display: flex;
+                justify-content: space-between;
+                color: whitesmoke;
+            }
 
 		</style>
 	</head>
 	<body>
         <div id="game">
             <div id="board"></div>
-            <div id="hud"></div>
+            <div id="hud">
+                <div id="selectionTile"></div>
+                <div id="scoreBoard">
+                    <div id="scoreLabel">score</div>
+                    <div id="points">
+                        <div id="label9"><span>9</span><span>x</span><span id="nine">0</span></div>
+                        <div id="label8"><span>8</span><span>x</span><span id="eight">0</span></div>
+                        <div id="label7"><span>7</span><span>x</span><span id="seven">0</span></div>
+                        <div id="label6"><span>6</span><span>x</span><span id="six">0</span></div>
+                        <div id="label5"><span>5</span><span>x</span><span id="five">0</span></div>
+                        <div id="label4"><span>4</span><span>x</span><span id="four">0</span></div>
+                        <div id="label3"><span>3</span><span>x</span><span id="three">0</span></div>
+                        <div id="label2"><span>2</span><span>x</span><span id="two">0</span></div>
+                        <div id="label1"><span>1</span><span>x</span><span id="one">0</span></div>
+                    </div>
+                    <div id="totalLabel">
+                        <div><span>total</span><span id="total">0</span></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 		<script type="text/javascript" src="main.js"></script>
 	</body>
