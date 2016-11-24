@@ -1,160 +1,183 @@
-'use strict';
+'use strict'
 
 class GreasyGame {
 
     constructor(options) {
 
         //object to keep track of all of the svg pieces for ease of access
-        this.svg = {};
+        this.svg = {}
 
-        this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123'];
-        this.activeTile = undefined;
-        this.hudtileId = 'hudtile';
-        this.hexGroups = { Xs : {}, Ys : {}, Zs : {} };
+        this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123']
+        this.activeTile = undefined
+        this.hudtileId = 'hudtile'
+        this.hexGroups = { Xs : {}, Ys : {}, Zs : {} }
 
-        this.columns = options.columns;
-        this.rows = options.rows;
-        this.width = options.width;
-        this.hexRadius = (this.width/(this.columns - 1))/2;
-        this.hexHeight = (this.hexRadius*Math.sqrt(3))/2;
-        this.height = this.hexHeight*2*this.rows + this.hexHeight;
+        this.columns = options.columns
+        this.rows = options.rows
+        this.width = options.width
+        this.hexRadius = (this.width/(this.columns - 1))/2
+        this.hexHeight = (this.hexRadius*Math.sqrt(3))/2
+        this.height = this.hexHeight*2*this.rows + this.hexHeight
 
-        this.color9 = '#FF8000';
-        this.color8 = '#6600CC';
-        this.color7 = '#990033';
-        this.color6 = '#33CC33';
-        this.color5 = '#666699';
-        this.color4 = '#FF3399';
-        this.color3 = '#CC0000';
-        this.color2 = '#0099FF';
-        this.color1 = '#996600';
+        this.color9 = '#FF8000'
+        this.color8 = '#6600CC'
+        this.color7 = '#990033'
+        this.color6 = '#33CC33'
+        this.color5 = '#666699'
+        this.color4 = '#FF3399'
+        this.color3 = '#CC0000'
+        this.color2 = '#0099FF'
+        this.color1 = '#996600'
 
-        this.score = 0;
+        this.score = 0
+    }
+
+    _updateView() {
+        $('#total').text(this.getScore())
+        return this.getScore()
     }
 
     play() {
         this.svg['board'] = d3.select('#board').append('svg')
             .attr('width', this.width)
             .attr('height', this.height)
-            .attr('viewBox', '' + -1*this.hexRadius + ' ' + this.hexHeight + ' ' + this.width + ' ' + this.height);
+            .attr('viewBox', '' + -1*this.hexRadius + ' ' + this.hexHeight + ' ' + this.width + ' ' + this.height)
 
         this.svg['st'] = d3.select('#selectionTile').append('svg')
             .attr('width', this.hexRadius*4)
-            .attr('height', this.height/2);
+            .attr('height', this.height/2)
 
         //build out all the hex coordinates
-        this.hexes = {};
-        var currentCenter = [0,0];
+        this.hexes = {}
+        var currentCenter = [0,0]
 
         for(var i=0; i<this.columns; i++) {
 
             for(var j=0; j<this.rows; j++) {
 
-                var hex = {};
+                var hex = {}
 
-                hex.id = 'x' + i + 'y' + j;
+                hex.id = 'x' + i + 'y' + j
                 hex.cc = {
                     x: i,
                     z: j - (i - (i&1)) / 2,
                     y: -i - (j - (i - (i&1)) / 2)
-                };
+                }
 
 
                 //set hidden to false
-                hex.hidden = false;
+                hex.hidden = false
 
                 //set the centers
-                this._setCenter(hex, this.hexes.length, currentCenter);
+                this._setCenter(hex, this.hexes.length, currentCenter)
 
                 //set the corners
-                this._setCorners(hex);
+                this._setCorners(hex)
 
-                this._setEdgeCenters(hex);
+                this._setEdgeCenters(hex)
 
                 //set new center
-                currentCenter = Object.assign({}, hex.center);
+                currentCenter = Object.assign({}, hex.center)
 
                 //store the hex
-                this.hexes[hex.id] = hex;
+                this.hexes[hex.id] = hex
             }
 
-            this._adjustCenter(i, currentCenter);
+            this._adjustCenter(i, currentCenter)
         }
 
         //hide the hexes once they have been created
-        this.hideHexes(options.hiddenHexes);
+        this.hideHexes(options.hiddenHexes)
 
         //draw the map
-        this._buildGame(options);
+        this._buildGame(options)
 
         //draw the hud
-        this._buildHud(options);
+        this._buildHud(options)
 
-        this.groupHexesByCubicCoords(this.hexes);
-        //console.log(this.hexGroups);
+        this.groupHexesByCubicCoords(this.hexes)
+        //console.log(this.hexGroups)
     }
 
     hideHexes(array) {
         for(var i = 0; i < array.length; ++i) {
-            this.hexes[array[i]].hidden = true;
+            this.hexes[array[i]].hidden = true
         }
     }
 
     groupHexesByCubicCoords(hexes) {
         for(var hexKey in hexes) {
 
-            var hex = hexes[hexKey];
+            var hex = hexes[hexKey]
 
             if(!hex.hidden) {
 
                 if(hex.cc !== undefined) {
-                    this.addToHexGroup(this.hexGroups.Xs, hex.cc.x, hex);
-                    this.addToHexGroup(this.hexGroups.Ys, hex.cc.y, hex);
-                    this.addToHexGroup(this.hexGroups.Zs, hex.cc.z, hex);
+                    this.addToHexGroup(this.hexGroups.Xs, hex.cc.x, hex)
+                    this.addToHexGroup(this.hexGroups.Ys, hex.cc.y, hex)
+                    this.addToHexGroup(this.hexGroups.Zs, hex.cc.z, hex)
                 } else {
-                    console.error('hex missing cubic coordinates - cannot group: ', hex);
+                    console.error('hex missing cubic coordinates - cannot group: ', hex)
                 }
             }
         }
     }
 
     chooseRandomTile() {
-        this.activeTile = this.tiles[Math.floor((Math.random() * this.tiles.length))];
+        var index = Math.floor((Math.random() * this.tiles.length))
+        var tile = this.tiles[index]
+        this.activeTile = tile
+
+        //remove selected tile
+        if (index > -1) {
+            this.tiles.splice(index, 1)
+        }
+        
+        console.log(this.tiles.length)
     }
 
     drawLines(hex) {
 
-        var svg;
+        var svg
 
         //if the hud hex draw on hud
         if(hex.id === this.hudtileId) {
-            this.svg.st.hudtile['lines'] = this.svg.st.append('g').attr('class', 'lines');
-            svg = this.svg.st.hudtile.lines;
+            this.svg.st.hudtile['lines'] = this.svg.st.append('g').attr('class', 'lines')
+            svg = this.svg.st.hudtile.lines
         } else {
-            this.svg.hexes[hex.id]['lines'] = this.svg.board.append('g').attr('class', 'lines');
-            svg = this.svg.hexes[hex.id].lines;
+            this.svg.hexes[hex.id]['lines'] = this.svg.board.append('g').attr('class', 'lines')
+            svg = this.svg.hexes[hex.id].lines
         }
 
 
-        var tile = this.activeTile.split('');
+        var tile = this.activeTile.split('')
         for(var axis in tile) {
 
             if(hex.id !== this.hudtileId) {
-                this._scoreLine(hex, tile[axis]);
+                this._scoreLine(hex, tile[axis])
             }
 
 
             switch (tile[axis]) {
-                case '8': this._drawLine(this.color8, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex); break;
-                case '4': this._drawLine(this.color4, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex); break;
-                case '3': this._drawLine(this.color3, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex); break;
-                case '7': this._drawLine(this.color7, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex); break;
-                case '6': this._drawLine(this.color6, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex); break;
-                case '2': this._drawLine(this.color2, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex); break;
-                case '9': this._drawLine(this.color9, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex); break;
-                case '5': this._drawLine(this.color5, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex); break;
-                case '1': this._drawLine(this.color1, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex); break;
-                default: console.error('drawLines default case shouldn\'t happen');
+                case '8': this._drawLine(this.color8, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex) 
+                break
+                case '4': this._drawLine(this.color4, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex) 
+                break
+                case '3': this._drawLine(this.color3, hex.edge3Center, hex.edge6Center, tile[axis], svg, hex) 
+                break
+                case '7': this._drawLine(this.color7, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex) 
+                break
+                case '6': this._drawLine(this.color6, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex) 
+                break
+                case '2': this._drawLine(this.color2, hex.edge2Center, hex.edge5Center, tile[axis], svg, hex) 
+                break
+                case '9': this._drawLine(this.color9, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex) 
+                break
+                case '5': this._drawLine(this.color5, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex) 
+                break
+                case '1': this._drawLine(this.color1, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex) 
+                break
+                default: console.error('drawLines default case shouldn\'t happen')
             }
         }
     }
@@ -162,23 +185,23 @@ class GreasyGame {
     _scoreLine(hex, line) {
         if( line === '8' || line === '4' || line === '3') {
             if(hex.zScore === undefined) {
-                hex.zScore = parseInt(line);
+                hex.zScore = parseInt(line)
             } else {
-                console.error('zScore being overridden!');
+                console.error('zScore being overridden!')
             }
         }
         if( line === '7' || line === '6' || line === '2') {
             if(hex.yScore === undefined) {
-                hex.yScore = parseInt(line);
+                hex.yScore = parseInt(line)
             } else {
-                console.error('yScore being overridden!');
+                console.error('yScore being overridden!')
             }
         }
         if( line === '9' || line === '5' || line === '1') {
             if(hex.xScore === undefined) {
-                hex.xScore = parseInt(line);
+                hex.xScore = parseInt(line)
             } else {
-                console.error('xScore being overridden!');
+                console.error('xScore being overridden!')
             }
         }
     }
@@ -190,23 +213,23 @@ class GreasyGame {
             ' M ' + point1[0] + ' ' + point1[1] +
             ' L ' + point2[0] + ' ' + point2[1])
             .attr('stroke', color)
-            .attr('stroke-width', '1.4em');
+            .attr('stroke-width', '1.4em')
 
         svg.append('text')
             .attr('x', () => {
-                if( axis === '8' || axis === '4' || axis === '3') { return point1[0]-20; }
-                if( axis === '7' || axis === '6' || axis === '2') { return point1[0]-15; }
-                if( axis === '9' || axis === '5' || axis === '1') { return point1[0]-5; }
+                if( axis === '8' || axis === '4' || axis === '3') { return point1[0]-20 }
+                if( axis === '7' || axis === '6' || axis === '2') { return point1[0]-15 }
+                if( axis === '9' || axis === '5' || axis === '1') { return point1[0]-5 }
             })
             .attr('y', () => {
-                if( axis === '8' || axis === '4' || axis === '3') { return point1[1]-5; }
-                if( axis === '7' || axis === '6' || axis === '2') { return point1[1]+15; }
-                if( axis === '9' || axis === '5' || axis === '1') { return point1[1]+20; }
+                if( axis === '8' || axis === '4' || axis === '3') { return point1[1]-5 }
+                if( axis === '7' || axis === '6' || axis === '2') { return point1[1]+15 }
+                if( axis === '9' || axis === '5' || axis === '1') { return point1[1]+20 }
             })
             .text(axis)
             .style('fill', 'white')
             .attr('font-size', '1.3em')
-            .attr("font-family", "Consolas, monaco, monospace");
+            .attr("font-family", "Consolas, monaco, monospace")
     }
 
     _setCenter(hex, hexCount, currentCenter) {
@@ -228,38 +251,38 @@ class GreasyGame {
     }
 
     _setCorners(hex) {
-        hex['corner1'] = [ hex.center[0] - this.hexRadius/2, hex.center[1] - this.hexHeight];
-        hex['corner2'] = [ hex.center[0] + this.hexRadius/2, hex.center[1] - this.hexHeight];
-        hex['corner3'] = [ hex.center[0] + this.hexRadius, hex.center[1]];
-        hex['corner4'] = [ hex.center[0] + this.hexRadius/2, hex.center[1] + this.hexHeight];
-        hex['corner5'] = [ hex.center[0] - this.hexRadius/2, hex.center[1] + this.hexHeight];
-        hex['corner6'] = [ hex.center[0] - this.hexRadius, hex.center[1]];
+        hex['corner1'] = [ hex.center[0] - this.hexRadius/2, hex.center[1] - this.hexHeight]
+        hex['corner2'] = [ hex.center[0] + this.hexRadius/2, hex.center[1] - this.hexHeight]
+        hex['corner3'] = [ hex.center[0] + this.hexRadius, hex.center[1]]
+        hex['corner4'] = [ hex.center[0] + this.hexRadius/2, hex.center[1] + this.hexHeight]
+        hex['corner5'] = [ hex.center[0] - this.hexRadius/2, hex.center[1] + this.hexHeight]
+        hex['corner6'] = [ hex.center[0] - this.hexRadius, hex.center[1]]
     }
 
     _setEdgeCenters(hex) {
-        hex['edge1Center'] = this._midpoint(hex.corner1, hex.corner2);
-        hex['edge2Center'] = this._midpoint(hex.corner2, hex.corner3);
-        hex['edge3Center'] = this._midpoint(hex.corner3, hex.corner4);
-        hex['edge4Center'] = this._midpoint(hex.corner4, hex.corner5);
-        hex['edge5Center'] = this._midpoint(hex.corner5, hex.corner6);
-        hex['edge6Center'] = this._midpoint(hex.corner6, hex.corner1);
+        hex['edge1Center'] = this._midpoint(hex.corner1, hex.corner2)
+        hex['edge2Center'] = this._midpoint(hex.corner2, hex.corner3)
+        hex['edge3Center'] = this._midpoint(hex.corner3, hex.corner4)
+        hex['edge4Center'] = this._midpoint(hex.corner4, hex.corner5)
+        hex['edge5Center'] = this._midpoint(hex.corner5, hex.corner6)
+        hex['edge6Center'] = this._midpoint(hex.corner6, hex.corner1)
     }
 
     _midpoint(coordinate1, coordinate2) {
         return [
             (coordinate1[0] + coordinate2[0])/2,
             (coordinate1[1] + coordinate2[1])/2
-        ];
+        ]
     }
 
     _adjustCenter(i, currentCenter) {
         //adjust center for next column
         if((i+1)%2 === 0) {
-            currentCenter[0] = currentCenter[0] + this.hexRadius + this.hexRadius/2;
-            currentCenter[1] = currentCenter[1] - this.hexHeight*2*this.rows - this.hexHeight;
+            currentCenter[0] = currentCenter[0] + this.hexRadius + this.hexRadius/2
+            currentCenter[1] = currentCenter[1] - this.hexHeight*2*this.rows - this.hexHeight
         } else {
-            currentCenter[0] = currentCenter[0] + this.hexRadius + this.hexRadius/2;
-            currentCenter[1] = currentCenter[1] - this.hexHeight*2*this.rows + this.hexHeight;
+            currentCenter[0] = currentCenter[0] + this.hexRadius + this.hexRadius/2
+            currentCenter[1] = currentCenter[1] - this.hexHeight*2*this.rows + this.hexHeight
         }
     }
 
@@ -283,39 +306,39 @@ class GreasyGame {
                 ' L ' + hex.corner4[0] + ' ' + hex.corner4[1] +
                 ' L ' + hex.corner5[0] + ' ' + hex.corner5[1] +
                 ' L ' + hex.corner6[0] + ' ' + hex.corner6[1] +
-                ' Z';
+                ' Z'
 
-                return path;
+                return path
             })
 
             .style('fill', options.hexColor)
-            .style('visibility', (hex) => { return hex.hidden ? 'hidden' : 'visible'; })
+            .style('visibility', (hex) => { return hex.hidden ? 'hidden' : 'visible' })
             .attr('stroke', options.outlineColor)
             .attr('stroke-width', options.outlineWeight)
             .on('click', (hex) => {
-                this.clickHex(hex);
-            });
+                this.clickHex(hex)
+            })
 
             //saves ref of the hex's svg in the svg map
-            var hexes = d3.selectAll('.hexagon')[0];
+            var hexes = d3.selectAll('.hexagon')[0]
 
             //create obj to group hexes
-            this.svg['hexes'] = {};
+            this.svg['hexes'] = {}
 
             for(var i=0; i<hexes.length; i++) {
-                this.svg.hexes[hexes[i].id] = hexes[i];
+                this.svg.hexes[hexes[i].id] = hexes[i]
             }
     }
 
     //element to the right of the game map
     _buildHud(options) {
 
-        var hex = { center : [this.hexRadius*2, this.hexHeight*2] };
-        hex.id = this.hudtileId;
+        var hex = { center : [this.hexRadius*2, this.hexHeight*2] }
+        hex.id = this.hudtileId
 
-        this._setCorners(hex);
-        this._setEdgeCenters(hex);
-        this.activeHex = hex;
+        this._setCorners(hex)
+        this._setEdgeCenters(hex)
+        this.activeHex = hex
 
         //save ref to hud tile
         this.svg.st.hudtile = this.svg.st.append('path')
@@ -330,9 +353,9 @@ class GreasyGame {
             ' L ' + hex.corner4[0] + ' ' + hex.corner4[1] +
             ' L ' + hex.corner5[0] + ' ' + hex.corner5[1] +
             ' L ' + hex.corner6[0] + ' ' + hex.corner6[1] +
-            ' Z';
+            ' Z'
 
-            return path;
+            return path
         })
         .style('fill', '#fff')
         .attr('stroke', options.hexColor)
@@ -340,39 +363,39 @@ class GreasyGame {
         .on('click', () => {
 
             if(this.activeTile === undefined) {
-                this.chooseRandomTile();
-                this.drawLines(hex);
+                this.chooseRandomTile()
+                this.drawLines(hex)
             }
 
-        });
+        })
 
     }
 
     _objToArray(obj) {
-        return Object.keys(obj).map((key) => {return obj[key]});
+        return Object.keys(obj).map((key) => {return obj[key]})
     }
 
     clickHex(hex) {
 
         if(this.activeTile !== undefined) {
 
-            this.drawLines(hex);
-            this.svg.st.hudtile.lines.remove();
-            this.activeTile = undefined;
+            this.drawLines(hex)
+            this.svg.st.hudtile.lines.remove()
+            this.activeTile = undefined
             this.svg.st.hudtile.on('click', (hex)=> {
-                this.chooseRandomTile();
-                this.drawLines(this.activeHex);
-            });
+                this.chooseRandomTile()
+                this.drawLines(this.activeHex)
+            })  
         }
 
     }
 
     getScore() {
-        this._scoreAxes(this.hexGroups.Xs, 'xScore');
-        this._scoreAxes(this.hexGroups.Ys, 'yScore');
-        this._scoreAxes(this.hexGroups.Zs, 'zScore');
+        this._scoreAxes(this.hexGroups.Xs, 'xScore')
+        this._scoreAxes(this.hexGroups.Ys, 'yScore')
+        this._scoreAxes(this.hexGroups.Zs, 'zScore')
 
-        return this.score;
+        return this.score
     }
 
     _scoreAxes(axisGroup, scoreKey) {
@@ -380,49 +403,85 @@ class GreasyGame {
         //iterates over each unique axis
         for(var axisKey in axisGroup) {
 
-            var axis = axisGroup[axisKey];
+            var axis = axisGroup[axisKey]
 
             //holds the first score encountered so we can make sure they all match
-            var firstScore = undefined;
-            var allMatch = true;
-            var undefinedFound = false;
+            var firstScore = undefined
+            var allMatch = true
+            var undefinedFound = false
 
             if(!axis.allFilled) {
 
-                var i = 0;
+                var i = 0
                 while(i < axis.hexes.length) {
 
                     //get the hex
-                    var hex = axis.hexes[i];
+                    var hex = axis.hexes[i]
 
                     //if any score is undefined there is no point in continuing to count
+                    //tile has NOT been placed === undefined 
                     if(hex[scoreKey] === undefined) {
-                        undefinedFound = true;
-                        break;
+                        undefinedFound = true
+                        break
                     }
 
                     //if this is the first score - record for comparison to following scores
                     if(i === 0) {
-                        firstScore = hex[scoreKey];
+                        firstScore = hex[scoreKey]
                     } else {
                         if(firstScore !== hex[scoreKey]) {
-                            allMatch = false;
+                            allMatch = false
                         }
                     }
 
-                    i++; //iterate i
+                    i++ //iterate i
                 }
 
                 //see if all of our hexes have had a game tiled played on them
                 if(!undefinedFound) {
-                    axis.allFilled = true;
+                    axis.allFilled = true
                 }
 
+                //TODO fix this break early nonsense
                 //if all the hexes match score the points and we didn't break early add up the score
                 if(allMatch && i === axis.hexes.length) {
                     for(var hexKey in axis.hexes) {
-                        var hex = axis.hexes[hexKey];
-                        this.score = this.score + hex[scoreKey];
+                        var hex = axis.hexes[hexKey]
+
+                        this.score = this.score + hex[scoreKey]
+
+                        //updates view - needs to be made into function
+                        switch (hex[scoreKey]) {
+                                case 9: 
+                                    $('#label9').text(hex[scoreKey])
+                                    break
+                                case 8: 
+                                    $('#label8').text(hex[scoreKey])
+                                    break
+                                case 7: 
+                                    $('#label7').text(hex[scoreKey])
+                                    break
+                                case 6: 
+                                    $('#label6').text(hex[scoreKey])
+                                    break
+                                case 5: 
+                                    $('#label5').text(hex[scoreKey])
+                                    break
+                                case 4: 
+                                    $('#label4').text(hex[scoreKey])
+                                    break
+                                case 3: 
+                                    $('#label3').text(hex[scoreKey])
+                                    break
+                                case 2: 
+                                    $('#label2').text(hex[scoreKey])
+                                    break
+                                case 1: 
+                                    $('#label1').text(hex[scoreKey])
+                                    break
+                                default: break
+                        }
+
                     }
                 }
             }
@@ -431,16 +490,16 @@ class GreasyGame {
 
     addToHexGroup(hexGroup, cubicIndex, hex) {
         if(hexGroup[cubicIndex] !== undefined) {
-            hexGroup[cubicIndex].hexes.push(hex);
+            hexGroup[cubicIndex].hexes.push(hex)
         } else {
-            hexGroup[cubicIndex] = { hexes: [hex], allFilled: false };
+            hexGroup[cubicIndex] = { hexes: [hex], allFilled: false }
         }
     }
 
 }
 
 try {
-    module.exports = GreasyGame;
+    module.exports = GreasyGame
 } catch(error) {
     //this throws errors in the browser but is required for testing
 }
