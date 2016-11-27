@@ -20,6 +20,8 @@ $('#selectionTile').height(game.hexHeight*4);
 $('#selectionTile').width(game.hexRadius*4);
 $('#scoreBoard').width(game.hexRadius*2);
 $('#scoreBoard').css('margin-left', game.hexRadius);
+
+//TODO set in css
 $('#label9').css('background-color', game.color9);
 $('#label8').css('background-color', game.color8);
 $('#label7').css('background-color', game.color7);

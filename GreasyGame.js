@@ -30,6 +30,15 @@ class GreasyGame {
         this.color1 = '#996600'
 
         this.score = 0
+        this.nines = 0
+        this.eights = 0
+        this.sevens = 0
+        this.sixes = 0
+        this.fives = 0
+        this.fours = 0
+        this.threes = 0
+        this.twos = 0
+        this.ones = 0
     }
 
     _updateView() {
@@ -452,32 +461,41 @@ class GreasyGame {
 
                         //updates view - needs to be made into function
                         switch (hex[scoreKey]) {
-                                case 9: 
-                                    $('#label9').text(hex[scoreKey])
+                                case 9:  
+                                    this.nines = this.nines + 1 
+                                    $('#nine').text(this.nines)
                                     break
                                 case 8: 
-                                    $('#label8').text(hex[scoreKey])
+                                    this.eights = this.eights + 1
+                                    $('#eight').text(this.eights)
                                     break
                                 case 7: 
-                                    $('#label7').text(hex[scoreKey])
+                                    this.sevens = this.sevens + 1
+                                    $('#seven').text(this.sevens)
                                     break
                                 case 6: 
-                                    $('#label6').text(hex[scoreKey])
+                                    this.sixes = this.sixes + 1
+                                    $('#six').text(this.sixes)
                                     break
                                 case 5: 
-                                    $('#label5').text(hex[scoreKey])
+                                    this.fives = this.fives + 1
+                                    $('#five').text(this.fives)
                                     break
                                 case 4: 
-                                    $('#label4').text(hex[scoreKey])
+                                    this.fours = this.fours + 1
+                                    $('#four').text(this.fours)
                                     break
                                 case 3: 
-                                    $('#label3').text(hex[scoreKey])
+                                    this.threes = this.threes + 1
+                                    $('#three').text(this.threes)
                                     break
                                 case 2: 
-                                    $('#label2').text(hex[scoreKey])
+                                    this.twos = this.twos + 1
+                                    $('#two').text(this.twos)
                                     break
                                 case 1: 
-                                    $('#label1').text(hex[scoreKey])
+                                    this.ones = this.ones + 1
+                                    $('#one').text(this.ones)
                                     break
                                 default: break
                         }
