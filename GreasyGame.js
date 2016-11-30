@@ -42,8 +42,8 @@ class GreasyGame {
     }
 
     _updateView() {
-        $('#total').text(this.getScore())
-        return this.getScore()
+        $('#total').text(this._getScore())
+        return this._getScore()
     }
 
     play() {
@@ -96,25 +96,25 @@ class GreasyGame {
         }
 
         //hide the hexes once they have been created
-        this.hideHexes(options.hiddenHexes)
+        this._hideHexes(options.hiddenHexes)
 
         //draw the map
-        this._buildGame(options)
+        this._buildGameBoard(options)
 
         //draw the hud
         this._buildHud(options)
 
-        this.groupHexesByCubicCoords(this.hexes)
+        this._groupHexesByCubicCoords(this.hexes)
         //console.log(this.hexGroups)
     }
 
-    hideHexes(array) {
+    _hideHexes(array) {
         for(var i = 0; i < array.length; ++i) {
             this.hexes[array[i]].hidden = true
         }
     }
 
-    groupHexesByCubicCoords(hexes) {
+    _groupHexesByCubicCoords(hexes) {
         for(var hexKey in hexes) {
 
             var hex = hexes[hexKey]
@@ -122,9 +122,9 @@ class GreasyGame {
             if(!hex.hidden) {
 
                 if(hex.cc !== undefined) {
-                    this.addToHexGroup(this.hexGroups.Xs, hex.cc.x, hex)
-                    this.addToHexGroup(this.hexGroups.Ys, hex.cc.y, hex)
-                    this.addToHexGroup(this.hexGroups.Zs, hex.cc.z, hex)
+                    this._addToHexGroup(this.hexGroups.Xs, hex.cc.x, hex)
+                    this._addToHexGroup(this.hexGroups.Ys, hex.cc.y, hex)
+                    this._addToHexGroup(this.hexGroups.Zs, hex.cc.z, hex)
                 } else {
                     console.error('hex missing cubic coordinates - cannot group: ', hex)
                 }
@@ -132,7 +132,7 @@ class GreasyGame {
         }
     }
 
-    chooseRandomTile() {
+    _chooseRandomTile() {
         var index = Math.floor((Math.random() * this.tiles.length))
         var tile = this.tiles[index]
         this.activeTile = tile
@@ -142,10 +142,9 @@ class GreasyGame {
             this.tiles.splice(index, 1)
         }
         
-        console.log(this.tiles.length)
     }
 
-    drawLines(hex) {
+    _drawLines(hex) {
 
         var svg
 
@@ -186,9 +185,11 @@ class GreasyGame {
                 break
                 case '1': this._drawLine(this.color1, hex.edge1Center, hex.edge4Center, tile[axis], svg, hex) 
                 break
-                default: console.error('drawLines default case shouldn\'t happen')
+                default: console.error('_drawLines default case shouldn\'t happen')
             }
         }
+
+        this._updateView()
     }
 
     _scoreLine(hex, line) {
@@ -295,7 +296,7 @@ class GreasyGame {
         }
     }
 
-    _buildGame() {
+    _buildGameBoard() {
 
         //draws the hexes
         this.svg.board
@@ -325,7 +326,7 @@ class GreasyGame {
             .attr('stroke', options.outlineColor)
             .attr('stroke-width', options.outlineWeight)
             .on('click', (hex) => {
-                this.clickHex(hex)
+                this.__clickHex(hex)
             })
 
             //saves ref of the hex's svg in the svg map
@@ -372,8 +373,8 @@ class GreasyGame {
         .on('click', () => {
 
             if(this.activeTile === undefined) {
-                this.chooseRandomTile()
-                this.drawLines(hex)
+                this._chooseRandomTile()
+                this._drawLines(hex)
             }
 
         })
@@ -384,22 +385,18 @@ class GreasyGame {
         return Object.keys(obj).map((key) => {return obj[key]})
     }
 
-    clickHex(hex) {
+    __clickHex(hex) {
 
         if(this.activeTile !== undefined) {
 
-            this.drawLines(hex)
+            this._drawLines(hex)
             this.svg.st.hudtile.lines.remove()
             this.activeTile = undefined
-            this.svg.st.hudtile.on('click', (hex)=> {
-                this.chooseRandomTile()
-                this.drawLines(this.activeHex)
-            })  
         }
 
     }
 
-    getScore() {
+    _getScore() {
         this._scoreAxes(this.hexGroups.Xs, 'xScore')
         this._scoreAxes(this.hexGroups.Ys, 'yScore')
         this._scoreAxes(this.hexGroups.Zs, 'zScore')
@@ -506,7 +503,7 @@ class GreasyGame {
         }
     }
 
-    addToHexGroup(hexGroup, cubicIndex, hex) {
+    _addToHexGroup(hexGroup, cubicIndex, hex) {
         if(hexGroup[cubicIndex] !== undefined) {
             hexGroup[cubicIndex].hexes.push(hex)
         } else {
