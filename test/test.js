@@ -1,11 +1,7 @@
-let chai = require('chai');
-let path = require('path');
-
-//should style assertions
-chai.should();
+let assert = require('assert');
 
 //import game
-let GreasyGame = require(path.join(__dirname, '..', 'GreasyGame'));
+let GreasyGame = require('../GreasyGame');
 
 describe('GreasyGame', () => {
 	let game;
@@ -25,8 +21,8 @@ describe('GreasyGame', () => {
 		game = new GreasyGame(options);
 	});
 
-	it('test hex centers were all built', () => {
-
+	it('should be instantiated', () => {
+		assert.notEqual(game, undefined);
 	});
 
 
