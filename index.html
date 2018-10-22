@@ -7,14 +7,26 @@
 		<script type="text/javascript" src="node_modules/d3/d3.min.js"></script>
         <script type="text/javascript" src="GreasyGame.js"></script>
 
-		<style type="text/css">
+        <style type="text/css">
+
+            html {
+                font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+            }
+            
+            #header {
+                display: flex;
+                justify-content: center;
+                font-size: 3rem; 
+                padding: 1rem;
+            }
 
             #game {
                 display: flex;
                 justify-content: center;
-                margin: 0 auto;
+                margin: 2rem 0;
             }
 
+            /* the game board */
             #board {}
 
             #hud {
@@ -24,7 +36,6 @@
 
             #scoreBoard {
                 color: #444;
-                font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
             }
 
             #scoreLabel {
@@ -54,9 +65,25 @@
                 color: whitesmoke;
             }
 
+            #leaderBoard {
+                display:flex;
+                padding: 0 15rem;
+                justify-content: space-between;
+            }
+
+            #leaderBoard > .label {
+                display: flex;                
+            }
+
 		</style>
 	</head>
 	<body>
+        <div id="header">
+            EAT THE HEX
+        </div>
+
+        <hr/>
+
         <div id="game">
             <div id="board"></div>
             <div id="hud">
@@ -79,8 +106,38 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div id="leaderBoard">
+        
+            <div class="label" id="rank">RANK
+                <div id="r1"></div>
+                <div id="r2"></div>
+                <div id="r3"></div>
+                <div id="r4"></div>
+                <div id="r5"></div>        
+            </div>
+
+            <div class="label">NAME
+                <div id="n1"></div>
+                <div id="n2"></div>
+                <div id="n3"></div>
+                <div id="n4"></div>
+                <div id="n5"></div>        
+            </div>
+
+            <div class="label">SCORE
+                <div id="s1"></div>
+                <div id="s2"></div>
+                <div id="s3"></div>
+                <div id="s4"></div>
+                <div id="s5"></div>        
+            </div>
 
         </div>
+
+        </div>
+
 		<script type="text/javascript" src="main.js"></script>
 	</body>
 </html>

@@ -25,5 +25,4 @@ describe('GreasyGame', () => {
 		assert.notEqual(game, undefined);
 	});
 
-
 });
