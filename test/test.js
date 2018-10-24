@@ -1,24 +1,27 @@
-let assert = require('assert');
+const assert = require('assert');
 
 //import game
-let GreasyGame = require('../GreasyGame');
+const GreasyGame = require('../GreasyGame');
 
 describe('GreasyGame', () => {
 	let game;
 
 	beforeEach( () => {
-		var options = {
-		    hexColor        : '#444',
-		    outlineColor    : '#fff',
-		    outlineWeight   : '1px',
-		    width           : 500,
-		    height          : 500,
-		    hiddenHexes     : [0,4,9,19,20,24],
-		    columns         : 5,
-		    rows            : 5
-		}
+        let options = {
+            hexColor            : '#444',
+            outlineColor        : '#090',
+            outlineWeight       : '0.1rem',
+            width               : width,
+            height              : height,
+            hiddenHexes         : ['x0y0', 'x0y4', 'x1y4', 'x3y4', 'x4y0', 'x4y4'],
+            columns             : 5,
+            rows                : 5,
+            hudtileColor        : '#222',
+            hudtileBorderColor  : '#0c0',
+            hudTileBorderWeight : '0.2rem'
+        }
 
-		game = new GreasyGame(options);
+        game = new GreasyGame(options);
 	});
 
 	it('should be instantiated', () => {
