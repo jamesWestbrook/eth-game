@@ -1,11 +1,11 @@
 'use strict';
 
-var width = Math.min(500, $(window).width() - $(window).width()*0.05);
-var height = Math.min(500, $(window).height() - $(window).height()*0.05);
+let width = Math.min(500, $(window).width() - $(window).width()*0.05);
+let height = Math.min(500, $(window).height() - $(window).height()*0.05);
 
-var options = {
+let options = {
     hexColor        : '#444',
-    outlineColor    : '#fff',
+    outlineColor    : '#090',
     outlineWeight   : '1px',
     width           : width,
     height          : height,
@@ -14,21 +14,11 @@ var options = {
     rows            : 5
 };
 
+let game = new GreasyGame(options);
 
-var game = new GreasyGame(options);
 $('#selectionTile').height(game.hexHeight*4);
 $('#selectionTile').width(game.hexRadius*4);
 $('#scoreBoard').width(game.hexRadius*2);
 $('#scoreBoard').css('margin-left', game.hexRadius);
 
-//TODO set in css
-$('#label9').css('background-color', game.color9);
-$('#label8').css('background-color', game.color8);
-$('#label7').css('background-color', game.color7);
-$('#label6').css('background-color', game.color6);
-$('#label5').css('background-color', game.color5);
-$('#label4').css('background-color', game.color4);
-$('#label3').css('background-color', game.color3);
-$('#label2').css('background-color', game.color2);
-$('#label1').css('background-color', game.color1);
 game.play();

@@ -8,10 +8,18 @@
         <script type="text/javascript" src="GreasyGame.js"></script>
 
         <style type="text/css">
+            :root {
+                --main-font: #0b0
+            }
 
             html {
                 font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
+                background-color: #333;
+                color: var(--main-font)
             }
+
+            /* the game board */
+            #board {}
             
             #header {
                 display: flex;
@@ -26,29 +34,22 @@
                 margin: 2rem 0;
             }
 
-            /* the game board */
-            #board {}
-
             #hud {
                 display:flex;
                 flex-flow: column;
             }
 
-            #scoreBoard {
-                color: #444;
-            }
-
             #scoreLabel {
-                margin-bottom: 5px;
-                padding-bottom: 5px;
-                border-bottom: 1px solid black;
+                margin-bottom: 0.25rem;
+                padding-bottom: 0.25rem;
+                border-bottom: 0.1rem dotted var(--main-font);
                 text-align: center;
             }
 
             #totalLabel {
-                margin-top: 5px;
-                padding-top: 10px;
-                border-top: 1px solid black;
+                margin-top: 0.5rem;
+                padding-top: 0.75rem;
+                border-top: 0.1rem dotted var(--main-font);
             }
 
             #totalLabel > div {
@@ -58,22 +59,51 @@
             }
 
             #points > div {
-                margin: 2px 0 2px 0;
+                margin: 0.2rem 0;
                 padding: 4px 10px 4px 10px;
                 display: flex;
                 justify-content: space-between;
-                color: whitesmoke;
             }
 
-            #leaderBoard {
-                display:flex;
-                padding: 0 15rem;
-                justify-content: space-between;
+            #hof-label {
+                display: flex;
+                justify-content: center;
+                font-size: 2rem; 
+                padding: 1rem;
             }
 
-            #leaderBoard > .label {
-                display: flex;                
+            #leader-board {
+                display: flex;
+                justify-content: center;
+            }            
+
+            #leader-board > div {
+                display: flex;
+                padding: 0.5rem 3rem;                
+                flex-flow: column;
+                min-width: 12rem;
             }
+            
+            .greatest {
+                margin: 0.5rem;
+                padding: 0.5rem;
+                border-bottom: 0.1rem dotted var(--main-font);
+                display: flex;
+                justify-content: center;
+            }
+
+            .greatest-bucket {
+                display: flex;    
+                justify-content: space-evenly;                
+            }
+
+            .greatest-bucket > div > div {
+                padding: 0.1rem;
+                font-style: italic
+            }
+
+            
+
 
 		</style>
 	</head>
@@ -81,8 +111,6 @@
         <div id="header">
             EAT THE HEX
         </div>
-
-        <hr/>
 
         <div id="game">
             <div id="board"></div>
@@ -108,33 +136,103 @@
             </div>
         </div>
 
-        <div id="leaderBoard">
-        
-            <div class="label" id="rank">RANK
-                <div id="r1"></div>
-                <div id="r2"></div>
-                <div id="r3"></div>
-                <div id="r4"></div>
-                <div id="r5"></div>        
-            </div>
-
-            <div class="label">NAME
-                <div id="n1"></div>
-                <div id="n2"></div>
-                <div id="n3"></div>
-                <div id="n4"></div>
-                <div id="n5"></div>        
-            </div>
-
-            <div class="label">SCORE
-                <div id="s1"></div>
-                <div id="s2"></div>
-                <div id="s3"></div>
-                <div id="s4"></div>
-                <div id="s5"></div>        
-            </div>
-
+        <div id="hof-label">
+            HALL OF FAME
         </div>
+
+        <div id="leader-board">
+        
+            <div id="weekly">
+
+                <div class="greatest">WEEKLY</div>
+
+                <div class="greatest-bucket">                                        
+
+                    <div id="ranks">
+                        <div class="r1">1</div>
+                        <div class="r2">2</div>
+                        <div class="r3">3</div>
+                        <div class="r4">4</div>
+                        <div class="r5">5</div>        
+                        <div class="r6">6</div>
+                        <div class="r7">7</div>
+                        <div class="r8">8</div>
+                        <div class="r9">9</div>   
+                    </div>
+
+                    <div class="names">
+                        <div class="n1">ETH</div>
+                        <div class="n2">ETH</div>
+                        <div class="n3">ETH</div>
+                        <div class="n4">ETH</div>
+                        <div class="n5">ETH</div>                
+                        <div class="n6">ETH</div>
+                        <div class="n7">ETH</div>
+                        <div class="n8">ETH</div>
+                        <div class="n9">ETH</div>                
+                    </div>
+
+                    <div class="scores">
+                        <div class="s1">200</div>
+                        <div class="s2">190</div>
+                        <div class="s3">180</div>
+                        <div class="s4">170</div>
+                        <div class="s5">160</div>                
+                        <div class="s6">150</div>
+                        <div class="s7">140</div>
+                        <div class="s8">130</div>
+                        <div class="s9">120</div>                
+                    </div>
+
+                </div>                
+
+            </div>
+
+            <div id="all-time">
+
+                <div class="greatest">ALL TIME</div>        
+                
+                <div class="greatest-bucket">                                        
+
+                    <div class="ranks">
+                        <div class="r1">1</div>
+                        <div class="r2">2</div>
+                        <div class="r3">3</div>
+                        <div class="r4">4</div>
+                        <div class="r5">5</div>        
+                        <div class="r6">6</div>
+                        <div class="r7">7</div>
+                        <div class="r8">8</div>
+                        <div class="r9">9</div>   
+                    </div>
+
+                    <div class="names">
+                        <div class="n1">ETH</div>
+                        <div class="n2">ETH</div>
+                        <div class="n3">ETH</div>
+                        <div class="n4">ETH</div>
+                        <div class="n5">ETH</div>                
+                        <div class="n6">ETH</div>
+                        <div class="n7">ETH</div>
+                        <div class="n8">ETH</div>
+                        <div class="n9">ETH</div>                
+                    </div>
+
+                    <div class="scores">
+                        <div class="s1">200</div>
+                        <div class="s2">190</div>
+                        <div class="s3">180</div>
+                        <div class="s4">170</div>
+                        <div class="s5">160</div>                
+                        <div class="s6">150</div>
+                        <div class="s7">140</div>
+                        <div class="s8">130</div>
+                        <div class="s9">120</div>                
+                    </div>
+
+                </div>    
+                
+            </div>
 
         </div>
 

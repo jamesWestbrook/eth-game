@@ -348,7 +348,6 @@ class GreasyGame {
 
         this._setCorners(hex)
         this._setEdgeCenters(hex)
-        this.activeHex = hex
 
         //save ref to hud tile
         this.svg.st.hudtile = this.svg.st.append('path')
@@ -367,15 +366,19 @@ class GreasyGame {
 
             return path
         })
-        .style('fill', '#fff')
-        .attr('stroke', options.hexColor)
-        .attr('stroke-width', '1px')
+        .style('fill', '#222')
+        .attr('stroke', '#0c0')
+        .attr('stroke-width', '0.2rem')
         .on('click', () => {
 
             if(this.activeTile === undefined) {
                 this._chooseRandomTile()
                 this._drawLines(hex)
             }
+
+            this.svg.st.hudtile.transition()
+                .duration(2000)
+                .ease("linear")
 
         })
 
