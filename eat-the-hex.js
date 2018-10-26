@@ -1,7 +1,8 @@
 'use strict'
 
-class GreasyGame {
+class EatTheHex {
 
+    // TODO setting via options vs statically declared is done inconsistently - need to fix
     constructor(options) {
 
         //object to keep track of all of the svg pieces for ease of access
@@ -11,10 +12,21 @@ class GreasyGame {
         this.activeTile = undefined
         this.hudtileId = 'hudtile'
         this.hexGroups = { Xs : {}, Ys : {}, Zs : {} }
+        this.plays = 19
+        this.hiddenHexes = options.hiddenHexes
 
         this.columns = options.columns
         this.rows = options.rows
         this.width = options.width
+
+        this.hudtileColor = options.hudtileColor
+        this.hudtileBorderColor = options.hudtileBorderColor
+        this.hudtileBorderWeight = options.hudtileBorderWeight
+        this.hexColor = options.hexColor
+        this.outlineColor = options.outlineColor
+        this.outLineWeight = options.outLineWeight
+
+
         this.hexRadius = (this.width/(this.columns - 1))/2
         this.hexHeight = (this.hexRadius*Math.sqrt(3))/2
         this.height = this.hexHeight*2*this.rows + this.hexHeight
@@ -42,11 +54,20 @@ class GreasyGame {
     }
 
     _updateView() {
-        $('#total').text(this._getScore())
-        return this._getScore()
+        $('#total').text(this.getScore())
+        return this.getScore()
+    }
+
+    onFinish(fn) {
+        this.finishFunction = fn;
+    }
+
+    gameOver() {
+        this.finishFunction();
     }
 
     play() {
+
         this.svg['board'] = d3.select('#board').append('svg')
             .attr('width', this.width)
             .attr('height', this.height)
@@ -95,21 +116,21 @@ class GreasyGame {
         }
 
         //hide the hexes once they have been created
-        this._hideHexes(options.hiddenHexes)
+        this._hideHexes()
 
         //draw the map
-        this._buildGameBoard(options)
+        this._buildGameBoard()
 
         //draw the hud
-        this._buildHud(options)
+        this._buildHud()
 
         this._groupHexesByCubicCoords(this.hexes)
 
     }
 
-    _hideHexes(array) {
-        for(let i = 0; i < array.length; ++i) {
-            this.hexes[array[i]].hidden = true
+    _hideHexes() {
+        for(let i = 0; i < this.hiddenHexes.length; ++i) {
+            this.hexes[this.hiddenHexes[i]].hidden = true
         }
     }
 
@@ -188,9 +209,6 @@ class GreasyGame {
                 default: console.error('_drawLines default case shouldn\'t happen')
             }
         }
-
-
-
 
         this._updateView()
     }
@@ -324,12 +342,12 @@ class GreasyGame {
                 return path
             })
 
-            .style('fill', options.hexColor)
+            .style('fill', this.hexColor)
             .style('visibility', (hex) => { return hex.hidden ? 'hidden' : 'visible' })
-            .attr('stroke', options.outlineColor)
-            .attr('stroke-width', options.outlineWeight)
+            .attr('stroke', this.outlineColor)
+            .attr('stroke-width', this.outlineWeight)
             .on('click', (hex) => {
-                this.__clickHex(hex)
+                this._clickHex(hex)
             })
 
             //saves ref of the hex's svg in the svg map
@@ -344,7 +362,7 @@ class GreasyGame {
     }
 
     //element to the right of the game map
-    _buildHud(options) {
+    _buildHud() {
 
         let hex = { center : [this.hexRadius*2, this.hexHeight*2] }
         hex.id = this.hudtileId
@@ -355,7 +373,7 @@ class GreasyGame {
         //save ref to hud tile
         this.svg.st.hudtile = this.svg.st.append('path')
         .attr('class', 'hexagon')
-        .attr('id', 'hudtile')
+        .attr('id', this.hudtileId)
         .attr('d', () => {
 
             let path =
@@ -369,9 +387,9 @@ class GreasyGame {
 
             return path
         })
-        .style('fill', options.hudtileColor)
-        .attr('stroke', options.hudtileBorderColor)
-        .attr('stroke-width', options.hudTileBorderWeight)
+        .style('fill', this.hudtileColor)
+        .attr('stroke', this.hudtileBorderColor)
+        .attr('stroke-width', this.hudtileBorderWeight)
         .on('click', () => {
 
             if(this.activeTile === undefined) {
@@ -387,20 +405,25 @@ class GreasyGame {
         return Object.keys(obj).map((key) => {return obj[key]})
     }
 
-    __clickHex(hex) {
+    _clickHex(hex) {
 
         if(this.activeTile !== undefined && !hex.played) {
 
             hex.played = true
+            this.plays = this.plays - 1
             this._drawLines(hex)
             this.svg.st.hudtile.lines.remove()
             this.activeTile = undefined
 
         }
 
+        if (this.plays === 0) {
+            this.gameOver()
+        }
+
     }
 
-    _getScore() {
+    getScore() {
         this._scoreAxes(this.hexGroups.Xs, 'xScore')
         this._scoreAxes(this.hexGroups.Ys, 'yScore')
         this._scoreAxes(this.hexGroups.Zs, 'zScore')
@@ -517,7 +540,9 @@ class GreasyGame {
 }
 
 try {
-    module.exports = GreasyGame
+    module.exports = EatTheHex
 } catch(error) {
+
+    //TODO fix this
     //this throws errors in the browser but is required for testing
 }
