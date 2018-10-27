@@ -2,11 +2,11 @@
 
 let lo = _.noConflict();
 
-function $assign(domPath) {
-    return $(domPath)
-}
-
-let leaderInitialsInput = $assign('#leader-input input')
+// function $assign(domPath) {
+//     return $(domPath)
+// }
+//
+// let leaderInitialsInput = $assign('#leader-input input')
 
 let game = new EatTheHex({
     hexColor            : '#444',
@@ -33,42 +33,42 @@ game.play()
 
 //set high scores
 // TODO pull from DB
-let allTime = [
-    { name: 'ETH', score: 200 },
-    { name: 'ETH', score: 190 },
-    { name: 'ETH', score: 180 },
-    { name: 'ETH', score: 170 },
-    { name: 'ETH', score: 160 },
-    { name: 'ETH', score: 150 },
-    { name: 'ETH', score: 140 },
-    { name: 'ETH', score: 130 },
-    { name: 'ABC', score: 120 }
-]
-
-let weekly = [
-    { name: 'ETH', score: 200 },
-    { name: 'ETH', score: 190 },
-    { name: 'ETH', score: 180 },
-    { name: 'ETH', score: 170 },
-    { name: 'ABC', score: 160 },
-    { name: 'ETH', score: 150 },
-    { name: 'ETH', score: 140 },
-    { name: 'ETH', score: 130 },
-    { name: 'ETH', score: 120 }
-]
-
-function setScores(scoreObjs, domPath) {
-    let sortedScoreObjs = lo.reverse(lo.sortBy(scoreObjs, 'score'))
-
-    for(let i = 0; i < 9; i++) {
-        $(`${domPath} .s${i+1}`).text(sortedScoreObjs[i].score)
-        $(`${domPath} .n${i+1}`).text(sortedScoreObjs[i].name)
-    }
-
-}
-
-setScores(allTime, '#all-time')
-setScores(weekly, '#weekly')
+// let allTime = [
+//     { name: 'ETH', score: 200 },
+//     { name: 'ETH', score: 190 },
+//     { name: 'ETH', score: 180 },
+//     { name: 'ETH', score: 170 },
+//     { name: 'ETH', score: 160 },
+//     { name: 'ETH', score: 150 },
+//     { name: 'ETH', score: 140 },
+//     { name: 'ETH', score: 130 },
+//     { name: 'ABC', score: 120 }
+// ]
+//
+// let weekly = [
+//     { name: 'ETH', score: 200 },
+//     { name: 'ETH', score: 190 },
+//     { name: 'ETH', score: 180 },
+//     { name: 'ETH', score: 170 },
+//     { name: 'ABC', score: 160 },
+//     { name: 'ETH', score: 150 },
+//     { name: 'ETH', score: 140 },
+//     { name: 'ETH', score: 130 },
+//     { name: 'ETH', score: 120 }
+// ]
+//
+// function setScores(scoreObjs, domPath) {
+//     let sortedScoreObjs = lo.reverse(lo.sortBy(scoreObjs, 'score'))
+//
+//     for(let i = 0; i < 9; i++) {
+//         $(`${domPath} .s${i+1}`).text(sortedScoreObjs[i].score)
+//         $(`${domPath} .n${i+1}`).text(sortedScoreObjs[i].name)
+//     }
+//
+// }
+//
+// setScores(allTime, '#all-time')
+// setScores(weekly, '#weekly')
 
 game.onFinish(() => {
 
@@ -103,4 +103,3 @@ $('#submit-score').on('click', () => {
 
     }
 })
-
