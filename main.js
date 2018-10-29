@@ -6,7 +6,6 @@ function $assign(domPath) {
     return $(domPath)
 }
 
-let leaderInitialsInput = $assign('#leader-input input')
 
 let game = new EatTheHex({
     hexColor            : '#444',
@@ -20,6 +19,7 @@ let game = new EatTheHex({
     hudtileColor        : '#222',
     hudtileBorderColor  : '#0c0',
     hudtileBorderWeight : '0.2rem'
+
 })
 
 $('#selectionTile').height(game.hexHeight*4)
@@ -27,35 +27,42 @@ $('#selectionTile').width(game.hexRadius*4)
 $('#scoreBoard').width(game.hexRadius*2)
 $('#scoreBoard').css('margin-left', game.hexRadius)
 
+async function init() {
+    game.play()
 
-game.play()
+    let leaderInitialsInput = $assign('#leader-input input')
 
+    let weekly = await saneFetch('/leaders/weekly')
+    let allTime = await saneFetch('/leaders/allTime')
 
-//set high scores
-// TODO pull from DB
-let allTime = [
-    { name: 'ETH', score: 200 },
-    { name: 'ETH', score: 190 },
-    { name: 'ETH', score: 180 },
-    { name: 'ETH', score: 170 },
-    { name: 'ETH', score: 160 },
-    { name: 'ETH', score: 150 },
-    { name: 'ETH', score: 140 },
-    { name: 'ETH', score: 130 },
-    { name: 'ABC', score: 120 }
-]
+    setScores(weekly, '#weekly')
+    setScores(allTime, '#all-time')
 
-let weekly = [
-    { name: 'ETH', score: 200 },
-    { name: 'ETH', score: 190 },
-    { name: 'ETH', score: 180 },
-    { name: 'ETH', score: 170 },
-    { name: 'ABC', score: 160 },
-    { name: 'ETH', score: 150 },
-    { name: 'ETH', score: 140 },
-    { name: 'ETH', score: 130 },
-    { name: 'ETH', score: 120 }
-]
+    /* game event triggers  todo REFACTOR ALL THIS SHIT */
+
+    leaderInitialsInput.on('input', () => {
+        if (leaderInitialsInput.val().length > 3) {
+            leaderInitialsInput.val(leaderInitialsInput.val().substring(0,3))
+        }
+    })
+
+    // shows leader board
+    game.onFinish(() => {
+        $('#leader-input-message').text('HIGH SCORE !!!')
+        $('#leader-input-score').text(game.getScore())
+        $('#leader-input').css('visibility', 'visible')
+    })
+
+    $('#submit-score').on('click', () => submitScore(leaderInitialsInput))
+    $('#leader-input').keypress((key) => {
+        key.which === 13 ? submitScore(leaderInitialsInput).catch(e => console.error(e)) : ''
+    })
+}
+
+async function saneFetch(url, opts) {
+    let response = await fetch(url, opts)
+    return response.json()
+}
 
 function setScores(scoreObjs, domPath) {
     let sortedScoreObjs = lo.reverse(lo.sortBy(scoreObjs, 'score'))
@@ -64,43 +71,35 @@ function setScores(scoreObjs, domPath) {
         $(`${domPath} .s${i+1}`).text(sortedScoreObjs[i].score)
         $(`${domPath} .n${i+1}`).text(sortedScoreObjs[i].name)
     }
-
 }
 
-setScores(allTime, '#all-time')
-setScores(weekly, '#weekly')
-
-game.onFinish(() => {
-
-    // if high score show sweet message
-    $('#leader-input-message').text('HIGH SCORE !!!')
-    $('#leader-input-score').text(game.getScore())
-
-    $('#leader-input').css('visibility', 'visible')
-
-    // todo post this value to server
-
-
-})
-
-leaderInitialsInput.on('input', () => {
-    if (leaderInitialsInput.val().length > 3) {
-        leaderInitialsInput.val(leaderInitialsInput.val().substring(0,3))
-    }
-})
-
-$('#submit-score').on('click', () => {
+async function submitScore(leaderInitialsInput) {
     if (leaderInitialsInput.val()) {
 
-        weekly.push({ score: game.getScore(), name: leaderInitialsInput.val() })
-        allTime.push({ score: game.getScore(), name: leaderInitialsInput.val() })
+        let newWeekly = await saneFetch('/leaders/weekly', {
+            method: 'put',
+            body: JSON.stringify({ score: game.getScore(), name: leaderInitialsInput.val() }),
+            headers: { 'Content-Type': 'application/json', }
+        })
 
-        setScores(allTime, '#all-time')
-        setScores(weekly, '#weekly')
+        let newAllTime = await saneFetch('/leaders/allTime', {
+            method: 'put',
+            body: JSON.stringify({ score: game.getScore(), name: leaderInitialsInput.val() }),
+            headers: { 'Content-Type': 'application/json', }
+        })
+
+        setScores(newAllTime, '#all-time')
+        setScores(newWeekly, '#weekly')
 
         $('#leader-input').css('visibility', 'hidden')
         leaderInitialsInput.val('')
 
+        game.reset();
     }
-})
+}
+
+init()
+
+
+
 

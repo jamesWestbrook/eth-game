@@ -7,18 +7,12 @@ class EatTheHex {
 
         //object to keep track of all of the svg pieces for ease of access
         this.svg = {}
+        this.hexes = {}
 
-        this.tiles = ['978','974','973','968','964','963','928','924','923','578','574','573','568','564','563','528','524','523','178','174','173','168','164','163','128','124','123']
-        this.activeTile = undefined
-        this.hudtileId = 'hudtile'
-        this.hexGroups = { Xs : {}, Ys : {}, Zs : {} }
-        this.plays = 19
         this.hiddenHexes = options.hiddenHexes
-
         this.columns = options.columns
         this.rows = options.rows
         this.width = options.width
-
         this.hudtileColor = options.hudtileColor
         this.hudtileBorderColor = options.hudtileBorderColor
         this.hudtileBorderWeight = options.hudtileBorderWeight
@@ -26,10 +20,12 @@ class EatTheHex {
         this.outlineColor = options.outlineColor
         this.outLineWeight = options.outLineWeight
 
-
         this.hexRadius = (this.width/(this.columns - 1))/2
         this.hexHeight = (this.hexRadius*Math.sqrt(3))/2
         this.height = this.hexHeight*2*this.rows + this.hexHeight
+
+        this.hudtileId = 'hudtile'
+        this.hexGroups = { Xs : {}, Ys : {}, Zs : {} }
 
         this.color9 = '#FF8000'
         this.color8 = '#6600CC'
@@ -41,6 +37,12 @@ class EatTheHex {
         this.color2 = '#0099FF'
         this.color1 = '#996600'
 
+        // resetting these clears the game
+
+        this.tokens = this.getGameTokens()
+        this.activeTile = undefined
+        this.plays = 19
+
         this.score = 0
         this.nines = 0
         this.eights = 0
@@ -51,6 +53,47 @@ class EatTheHex {
         this.threes = 0
         this.twos = 0
         this.ones = 0
+    }
+
+    reset() {
+        this.tokens = this.getGameTokens()
+        this.activeTile = undefined
+        this.plays = 19
+
+        this.score = 0
+        this.nines = 0
+        this.eights = 0
+        this.sevens = 0
+        this.sixes = 0
+        this.fives = 0
+        this.fours = 0
+        this.threes = 0
+        this.twos = 0
+        this.ones = 0
+
+        for (const key of Object.keys(this.hexes)) {
+
+            let hex = this.hexes[key]
+
+            hex.played = false
+            hex.xScore = undefined
+            hex.yScore = undefined
+            hex.zScore = undefined
+            
+            if (hex.svg) {
+                hex.svg.remove()
+            }
+        }
+
+        $('#one').val(0)
+        $('#two').val(0)
+        $('#three').val(0)
+        $('#four').val(0)
+        $('#five').val(0)
+        $('#six').val(0)
+        $('#seven').val(0)
+        $('#eight').val(0)
+        $('#nine').val(0)
     }
 
     _updateView() {
@@ -78,7 +121,6 @@ class EatTheHex {
             .attr('height', this.height/2)
 
         //build out all the hex coordinates
-        this.hexes = {}
         let currentCenter = [0,0]
 
         for(let i=0; i<this.columns; i++) {
@@ -153,13 +195,13 @@ class EatTheHex {
     }
 
     _chooseRandomTile() {
-        let index = Math.floor((Math.random() * this.tiles.length))
-        let tile = this.tiles[index]
+        let index = Math.floor((Math.random() * this.tokens.length))
+        let tile = this.tokens[index]
         this.activeTile = tile
 
         //remove selected tile
         if (index > -1) {
-            this.tiles.splice(index, 1)
+            this.tokens.splice(index, 1)
         }
         
     }
@@ -260,7 +302,11 @@ class EatTheHex {
             .text(axis)
             .style('fill', 'white')
             .attr('font-size', '1.3rem')
-            .attr("font-family", "Consolas, monaco, monospace")
+            .attr('font-family', 'Consolas, monaco, monospace')
+            
+
+        // save ref so we can clean up
+        hex.svg = svg
     }
 
     _setCenter(hex, hexCount, currentCenter) {
@@ -536,6 +582,14 @@ class EatTheHex {
         } else {
             hexGroup[cubicIndex] = { hexes: [hex], allFilled: false }
         }
+    }
+
+    getGameTokens() {
+        return [
+            '978','974','973','968','964','963','928','924','923',
+            '578','574','573','568','564','563','528','524','523',
+            '178','174','173','168','164','163','128','124','123'
+        ]
     }
 }
 
