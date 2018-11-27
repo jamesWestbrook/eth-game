@@ -85,15 +85,23 @@ class EatTheHex {
             }
         }
 
-        $('#one').val(0)
-        $('#two').val(0)
-        $('#three').val(0)
-        $('#four').val(0)
-        $('#five').val(0)
-        $('#six').val(0)
-        $('#seven').val(0)
-        $('#eight').val(0)
-        $('#nine').val(0)
+        $('#one').text(0)
+        $('#two').text(0)
+        $('#three').text(0)
+        $('#four').text(0)
+        $('#five').text(0)
+        $('#six').text(0)
+        $('#seven').text(0)
+        $('#eight').text(0)
+        $('#nine').text(0)
+        $('#total').text(0)
+
+        // I don't rememeber why ...
+        for (let group in this.hexGroups) {            
+            for (let element in this.hexGroups[group]) {
+                this.hexGroups[group][element].allFilled = false                
+            }
+        }
     }
 
     _updateView() {
@@ -416,6 +424,11 @@ class EatTheHex {
         this._setCorners(hex)
         this._setEdgeCenters(hex)
 
+        for (let i = 6; i > 0; i--) {
+            this.addHudAnimationTile(hex, 1 + i, `hudArt${i}`)
+        }
+
+
         //save ref to hud tile
         this.svg.st.hudtile = this.svg.st.append('path')
         .attr('class', 'hexagon')
@@ -445,6 +458,27 @@ class EatTheHex {
 
         })
 
+    }
+
+    addHudAnimationTile(hex, v, id) {
+        //save ref to hud tile
+        return this.svg.st.append('path')
+            .attr('class', 'art')
+            .attr('id', id)
+            .attr('d', () => {
+
+                let path =
+                    ' M ' + (hex.corner1[0] - v * 0.66) + ' ' + (hex.corner1[1] - v) +
+                    ' L ' + (hex.corner2[0] + v * 0.66) + ' ' + (hex.corner2[1] - v) +
+                    ' L ' + (hex.corner3[0] + v * 1.25) + ' ' + (hex.corner3[1] - 0) +
+                    ' L ' + (hex.corner4[0] + v * 0.66) + ' ' + (hex.corner4[1] + v) +
+                    ' L ' + (hex.corner5[0] - v * 0.66) + ' ' + (hex.corner5[1] + v) +
+                    ' L ' + (hex.corner6[0] - v * 1.25) + ' ' + (hex.corner6[1] + 0) +
+                    ' Z'
+
+                return path
+            })
+            .style('fill', '#333')
     }
 
     _objToArray(obj) {
@@ -521,7 +555,6 @@ class EatTheHex {
                     axis.allFilled = true
                 }
 
-                //TODO fix this break early nonsense
                 //if all the hexes match score the points and we didn't break early add up the score
                 if(allMatch && i === axis.hexes.length) {
                     for(let hexKey in axis.hexes) {
@@ -591,6 +624,7 @@ class EatTheHex {
             '178','174','173','168','164','163','128','124','123'
         ]
     }
+
 }
 
 try {

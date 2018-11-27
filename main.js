@@ -6,7 +6,6 @@ function $assign(domPath) {
     return $(domPath)
 }
 
-
 let game = new EatTheHex({
     hexColor            : '#444',
     outlineColor        : '#090',
@@ -57,6 +56,7 @@ async function init() {
     $('#leader-input').keypress((key) => {
         key.which === 13 ? submitScore(leaderInitialsInput).catch(e => console.error(e)) : ''
     })
+
 }
 
 async function saneFetch(url, opts) {
@@ -100,6 +100,36 @@ async function submitScore(leaderInitialsInput) {
 
 init()
 
+let colors = ['#0c0', '#333']
+
+function changeColor (i) {
+
+    if (i > 0) {
+        d3.select(`#hudArt${i}`).style('fill', () => { return colors[0] })
+        d3.select(`#hudArt${i-1}`).style('fill', () => { return colors[1] })
+    } else {
+        d3.select(`#hudArt${i}`).style('fill', () => { return colors[0] })
+    }
+
+}
+
+function layer(i) {
+    let f = 150
+
+    if(i === 7) {
+        setTimeout(() => {
+            d3.select(`#hudArt6`).style('fill', () => { return colors[1] })
+            layer(0)
+        }, f*i)
+    } else {
+        setTimeout(() => { changeColor(i) }, f*i)
+        layer(i+1)
+    }
+
+
+}
+
+layer(0)
 
 
 
