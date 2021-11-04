@@ -3,14 +3,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 
-// Constants
 const PORT = 8080
 const jsonParser = bodyParser.json()
 
-// App
 const app = express()
-
-
 
 // temporary initial values for scores
 let weekly = [
@@ -70,6 +66,5 @@ app.put('/leaders/:type', jsonParser, (req, res) => {
 })
 
 
-// Set up server
 app.use(express.static('.'))
-app.listen(PORT);
+app.listen(PORT, () => console.info(`listening on ${PORT}`));
