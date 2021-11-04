@@ -1,5 +1,3 @@
-'use strict'
-
 class EatTheHex {
 
     // TODO setting via options vs statically declared is done inconsistently - need to fix

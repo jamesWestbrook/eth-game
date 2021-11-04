@@ -1,4 +1,3 @@
-'use strict'
 
 let lo = _.noConflict();
 
@@ -130,6 +129,3 @@ function layer(i) {
 }
 
 layer(0)
-
-
-
