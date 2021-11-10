@@ -28,13 +28,9 @@ $('#scoreBoard').css('margin-left', game.hexRadius)
 async function init() {
     game.play()
 
+    loadScores();
+
     let leaderInitialsInput = $assign('#leader-input input')
-
-    let weekly = await saneFetch('/leaders/weekly')
-    let allTime = await saneFetch('/leaders/allTime')
-
-    setScores(weekly, '#weekly')
-    setScores(allTime, '#all-time')
 
     /* game event triggers  todo REFACTOR ALL THIS SHIT */
 
@@ -63,41 +59,50 @@ async function saneFetch(url, opts) {
     return response.json()
 }
 
-function setScores(scoreObjs, domPath) {
-    let sortedScoreObjs = lo.reverse(lo.sortBy(scoreObjs, 'score'))
+function setScores(scoreSearchResults, domPath) {
+    let scores = scoreSearchResults._embedded.scores;
+    scores = lo.sortBy(scores, 'score)');
 
     for(let i = 0; i < 9; i++) {
-        $(`${domPath} .s${i+1}`).text(sortedScoreObjs[i].score)
-        $(`${domPath} .n${i+1}`).text(sortedScoreObjs[i].name)
+        let score = scores[i]
+
+        if (!score) {
+            score = { score: 0, initials: '---' }
+        }
+
+        $(`${domPath} .s${i+1}`).text(score.score)
+        $(`${domPath} .n${i+1}`).text(score.initials)
     }
 }
 
 async function submitScore(leaderInitialsInput) {
     if (leaderInitialsInput.val()) {
 
-        let newWeekly = await saneFetch('/leaders/weekly', {
-            method: 'put',
-            body: JSON.stringify({ score: game.getScore(), name: leaderInitialsInput.val() }),
+        await saneFetch('api/scores', {
+            method: 'post',
+            body: JSON.stringify({ score: game.getScore(), initials: leaderInitialsInput.val() }),
             headers: { 'Content-Type': 'application/json', }
         })
-
-        let newAllTime = await saneFetch('/leaders/allTime', {
-            method: 'put',
-            body: JSON.stringify({ score: game.getScore(), name: leaderInitialsInput.val() }),
-            headers: { 'Content-Type': 'application/json', }
-        })
-
-        setScores(newAllTime, '#all-time')
-        setScores(newWeekly, '#weekly')
 
         $('#leader-input').css('visibility', 'hidden')
         leaderInitialsInput.val('')
 
+        loadScores();
         game.reset();
     }
 }
 
-init()
+async function loadScores() {
+    let lastWeek = new Date(Date.now()-1000*7*24*60*60).toLocaleDateString()
+
+    let allTime = await saneFetch('/api/scores/search/getScoresByScoreGreaterThanOrderByScoreDesc?score=0');
+    let weekly = await saneFetch(`/api/scores/search/getScoresByTimeAfterOrderByScoreDesc?score=120&time=${lastWeek}`);
+
+    setScores(allTime, '#all-time')
+    setScores(weekly, '#weekly')
+}
+
+init() // try to move this down
 
 let colors = ['#0c0', '#333']
 
