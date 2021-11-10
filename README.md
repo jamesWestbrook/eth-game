@@ -1,5 +1,5 @@
-# greasy
-a clone of the game take it easy
+# Eat the Hex
+a clone of the board game "take it easy"
 
 ## to run
 
