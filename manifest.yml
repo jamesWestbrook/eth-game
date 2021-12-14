@@ -1,6 +1,0 @@
----
-applications:
-- name: eat-the-hex
-  instances: 1
-  command: node --harmony server.js
-  buildpack: nodejs_buildpack
